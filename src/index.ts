@@ -9,8 +9,11 @@ import SkyboxPosY from 'assets/skybox/posy.jpg';
 import SkyboxNegY from 'assets/skybox/negy.jpg';
 import SkyboxPosZ from 'assets/skybox/posz.jpg';
 import SkyboxNegZ from 'assets/skybox/negz.jpg';
-
 import GrassTexture from 'assets/textures/grass.png';
+import BrickColor from 'assets/textures/brick-color.jpg';
+import BrickNrm from 'assets/textures/brick-normal.jpg';
+import BrickOcc from 'assets/textures/brick-occ.jpg';
+import Wall from 'assets/objects/Wall.glb';
 
 const canvas = document.createElement('canvas');
 canvas.setAttribute('tabindex', '0');
@@ -32,6 +35,9 @@ loadAllAssets(game)
 async function loadAllAssets(game: Game): Promise<Game> {
   await Promise.all([
     game.assets.loadTexture('GrassTexture', GrassTexture),
+    game.assets.loadTexture('BrickColor', BrickColor),
+    game.assets.loadTexture('BrickNormal', BrickNrm),
+    game.assets.loadTexture('BrickOcclusion', BrickOcc),
     game.assets.loadCubeTexture('SkyboxBG', {
       positiveX: SkyboxPosX,
       negativeX: SkyboxNegX,
@@ -39,6 +45,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
       negativeY: SkyboxNegY,
       positiveZ: SkyboxPosZ,
       negativeZ: SkyboxNegZ,
+    }),
+    game.assets.loadGLTFFile(Wall, (glb, manager) => {
+      manager.saveObject('Wall', glb.scene.children[0]);
     }),
   ]);
 

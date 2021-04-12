@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
 
 const ROTATION_SPEED = 0.005;
-const MOVEMENT_SPEED = 0.05;
+const MOVEMENT_SPEED = 0.1;
 const MAX_VERT_ANGLE = 0.75 * (Math.PI / 2);
 
 /**
@@ -18,7 +18,7 @@ export class Player implements EntityState {
   private cube: THREE.Mesh;
   private camera: THREE.PerspectiveCamera;
 
-  private horDir = 0;
+  private horDir = Math.PI / 2;
   private vertDir = 0;
 
   onCreate(entity: Entity<this>): void {
@@ -32,7 +32,7 @@ export class Player implements EntityState {
 
     // Build the collision mask
     this.entity.mask = new BoxCollisionMask(this.cube);
-    this.entity.mask.showMask = true;
+    // this.entity.mask.showMask = true;
 
     // Build the camera
     this.camera = new THREE.PerspectiveCamera(

@@ -35,3 +35,9 @@ declare module '*.mp3' {
   const content: string;
   export default content;
 }
+
+// Text level files
+declare module '*.lvl' {
+  const content: string;
+  export default content;
+}

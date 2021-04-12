@@ -47,6 +47,10 @@ module.exports = {
         test: /\.glsl$/i,
         type: 'asset/source',
       },
+      {
+        test: /\.lvl$/i,
+        type: 'asset/source',
+      },
     ],
   },
   optimization: {
