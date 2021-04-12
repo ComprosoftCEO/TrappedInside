@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "outDir": "./build/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es2015",
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": [
+      "es2019",
+      "dom"
+    ],
+    "jsx": "react",
+    "allowJs": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "engine/*": [
+        "src/engine/*"
+      ],
+      "areas/*": [
+        "src/areas/*"
+      ],
+      "entities/*": [
+        "src/entities/*"
+      ]
+    }
+  }
+}
