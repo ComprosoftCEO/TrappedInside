@@ -551,9 +551,7 @@ export class InputManager {
    */
   public set pointerLockEnabled(enabled: boolean) {
     this._pointerLockEnabled = enabled;
-    if (enabled) {
-      this.canvas.requestPointerLock();
-    } else {
+    if (!enabled) {
       document.exitPointerLock();
     }
   }
@@ -563,7 +561,12 @@ export class InputManager {
    */
   private onMouseMove(event: MouseEvent) {
     this.mouseCoords = [event.clientX, event.clientY];
-    this.mouseMovement = [event.movementX, event.movementY];
+
+    if (document.pointerLockElement === this.canvas) {
+      this.mouseMovement = [event.movementX, event.movementY];
+    } else {
+      this.mouseMovement = [0, 0];
+    }
   }
 
   /**
@@ -601,22 +604,13 @@ export class InputManager {
   /**
    * Called whenever the pointer lock is changed to re-enable the pointer lock
    */
-  private onPointerLockChange() {
-    if (document.pointerLockElement === this.canvas) {
-      return;
-    }
-
-    if (this._pointerLockEnabled) {
-      this.canvas.requestPointerLock();
-    }
-  }
+  private onPointerLockChange(_event: Event) {}
 
   /**
    * Called on a pointer lock error
+   * Sometimes, the user might need to click multiple times before pointer lock is re-engaged
    */
-  private onPointerLockError() {
-    this._pointerLockEnabled = false;
-  }
+  private onPointerLockError(_error: Event) {}
 
   /**
    * Called internally by the game engine to clear all keys started and keys released.
@@ -672,6 +666,8 @@ export class InputManager {
    * Get the X movement of the mouse since the last movement event
    *
    * Coordinates are calculated from the top-left corner of the Canvas
+   *
+   * Returns 0 if pointer lock is not enabled
    */
   public getMouseMovementX(): number {
     return this.mouseMovement[0];
@@ -681,6 +677,8 @@ export class InputManager {
    * Get the Y movement of the mouse since the last movement event
    *
    * Coordinates are calculated from the top-left corner of the Canvas
+   *
+   * Returns 0 if pointer lock is not enabled
    */
   public getMouseMovementY(): number {
     return this.mouseMovement[1];

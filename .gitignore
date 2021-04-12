@@ -26,3 +26,6 @@ yarn-error.log*
 
 # Blender files
 *.blend*
+
+# Other assets
+unused-assets/

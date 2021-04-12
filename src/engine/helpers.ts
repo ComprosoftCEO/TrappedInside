@@ -33,3 +33,15 @@ export function wrapNumber(x: number, min: number, max: number, includeMax = tru
   const d = max - min;
   return x === max && includeMax ? x : ((((x - min) % d) + d) % d) + min;
 }
+
+/**
+ * Clamp a value between two numbers, so min <= x <= max
+ *
+ * @param x Number to clamp
+ * @param min Minimum value
+ * @param max Maximum value
+ * @returns Clamped number
+ */
+export function clamp(x: number, min: number, max: number): number {
+  return Math.min(Math.max(x, min), max);
+}
