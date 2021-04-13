@@ -9,7 +9,9 @@ import SkyboxPosY from 'assets/skybox/posy.jpg';
 import SkyboxNegY from 'assets/skybox/negy.jpg';
 import SkyboxPosZ from 'assets/skybox/posz.jpg';
 import SkyboxNegZ from 'assets/skybox/negz.jpg';
-import GrassTexture from 'assets/textures/grass.png';
+import GrassColor from 'assets/textures/grass-color.jpg';
+import GrassNrm from 'assets/textures/grass-normal.jpg';
+import GrassOcc from 'assets/textures/grass-occ.jpg';
 import BrickColor from 'assets/textures/brick-color.jpg';
 import BrickNrm from 'assets/textures/brick-normal.jpg';
 import BrickOcc from 'assets/textures/brick-occ.jpg';
@@ -34,7 +36,9 @@ loadAllAssets(game)
  */
 async function loadAllAssets(game: Game): Promise<Game> {
   await Promise.all([
-    game.assets.loadTexture('GrassTexture', GrassTexture),
+    game.assets.loadTexture('GrassColor', GrassColor),
+    game.assets.loadTexture('GrassNormal', GrassNrm),
+    game.assets.loadTexture('GrassOcclusion', GrassOcc),
     game.assets.loadTexture('BrickColor', BrickColor),
     game.assets.loadTexture('BrickNormal', BrickNrm),
     game.assets.loadTexture('BrickOcclusion', BrickOcc),

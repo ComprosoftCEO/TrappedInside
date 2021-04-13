@@ -29,9 +29,9 @@ export class MazeWalls implements EntityState {
     this.endZ = SCALE_BASE * Math.floor(area.state.mazeWidth / 2);
 
     // Initialize the box material
-    BOX_MATERIAL.map = this.buildWallTexture('BrickColor', area);
-    BOX_MATERIAL.normalMap = this.buildWallTexture('BrickNormal', area);
-    BOX_MATERIAL.aoMap = this.buildWallTexture('BrickOcclusion', area);
+    BOX_MATERIAL.map = MazeWalls.buildWallTexture('BrickColor', area);
+    BOX_MATERIAL.normalMap = MazeWalls.buildWallTexture('BrickNormal', area);
+    BOX_MATERIAL.aoMap = MazeWalls.buildWallTexture('BrickOcclusion', area);
     BOX_MATERIAL.side = THREE.FrontSide;
 
     // Create instances for all walls
@@ -43,7 +43,7 @@ export class MazeWalls implements EntityState {
   /**
    * Load a wall texture and configure texture scaling and repeating
    */
-  private buildWallTexture(name: string, area: Area<MainArea>): THREE.Texture {
+  private static buildWallTexture(name: string, area: Area<MainArea>): THREE.Texture {
     const texture = area.game.assets.getTexture(name);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;

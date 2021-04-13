@@ -1,4 +1,5 @@
-import { SCALE_BASE } from 'areas/MainArea';
+import { MainArea, SCALE_BASE } from 'areas/MainArea';
+import { Area } from 'engine/area';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';
 
@@ -31,11 +32,9 @@ export class MazeFloor implements EntityState {
     this.entity = entity;
 
     // Load and initialize the texture
-    const planeTexture = entity.area.game.assets.getTexture('GrassTexture');
-    planeTexture.wrapS = THREE.RepeatWrapping;
-    planeTexture.wrapT = THREE.RepeatWrapping;
-    planeTexture.repeat.set(this.width * SCALE_BASE, this.height * SCALE_BASE);
-    PLANE_MATERIAL.map = planeTexture;
+    PLANE_MATERIAL.map = this.buildTexture('GrassColor');
+    PLANE_MATERIAL.normalMap = this.buildTexture('GrassNormal');
+    PLANE_MATERIAL.aoMap = this.buildTexture('GrassOcclusion');
 
     // Build the plane object
     this.entity.object = new THREE.Mesh(PLANE_GEOMETRY, PLANE_MATERIAL);
@@ -43,6 +42,17 @@ export class MazeFloor implements EntityState {
     this.entity.object.scale.set(this.width * SCALE_BASE + 2, this.height * SCALE_BASE + 2, 1);
     this.entity.object.castShadow = true;
     this.entity.object.receiveShadow = true;
+  }
+
+  /**
+   * Load a wall texture and configure texture scaling and repeating
+   */
+  private buildTexture(name: string): THREE.Texture {
+    const texture = this.entity.area.game.assets.getTexture(name);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(this.width * SCALE_BASE, this.height * SCALE_BASE);
+    return texture;
   }
 
   onDestroy(): void {}
