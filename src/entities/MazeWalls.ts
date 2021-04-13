@@ -20,13 +20,8 @@ export class MazeWalls implements EntityState {
   private mask: GroupCollisionMask;
   private currentWall = 0;
 
-  private startX: number;
-  private endZ: number;
-
   constructor(numWalls: number, area: Area<MainArea>) {
     this.mask = new GroupCollisionMask();
-    this.startX = 0 - SCALE_BASE * Math.floor(area.state.mazeHeight / 2);
-    this.endZ = SCALE_BASE * Math.floor(area.state.mazeWidth / 2);
 
     // Initialize the box material
     BOX_MATERIAL.map = MazeWalls.buildWallTexture('BrickColor', area);
@@ -52,24 +47,17 @@ export class MazeWalls implements EntityState {
   }
 
   /**
-   * Set a given X,Z coordinate to be a wall
-   *
-   *        N [+X]
-   *
-   * W [-Z]      [+Z] E
-   *
-   *        X [-X]
-   *
-   * Notice that we have to flip Z because THREE.js puts +Z on the left
+   * Set a given (row, column) pair to be a wall
    */
-  public addWall(x: number, z: number): void {
+  public addWall(row: number, col: number, area: MainArea): void {
     if (this.currentWall >= this.walls.count) {
       return;
     }
 
     // Set the wall translation value
+    const position = area.tileLocationToPosition(row, col);
     const matrix = new THREE.Matrix4();
-    matrix.makeTranslation(this.startX + x * SCALE_BASE, SCALE_HEIGHT / 2 - 1, this.endZ - z * SCALE_BASE);
+    matrix.makeTranslation(position.x, SCALE_HEIGHT / 2 - 1, position.z);
     matrix.scale(new THREE.Vector3(SCALE_BASE, SCALE_HEIGHT, SCALE_BASE));
     this.walls.setMatrixAt(this.currentWall, matrix);
 

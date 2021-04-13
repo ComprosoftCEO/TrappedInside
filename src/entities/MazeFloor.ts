@@ -1,5 +1,4 @@
-import { MainArea, SCALE_BASE } from 'areas/MainArea';
-import { Area } from 'engine/area';
+import { SCALE_BASE } from 'areas/MainArea';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';
 

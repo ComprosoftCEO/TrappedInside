@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import TestMaze from 'assets/levels/TestMaze.lvl';
 import { MazeWalls } from 'entities/MazeWalls';
 import { MazeFloor } from 'entities/MazeFloor';
+import { Door, DoorColor } from 'entities/Door';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -15,11 +16,19 @@ export const SCALE_HEIGHT = 20;
 export enum MazeObject {
   Empty,
   Wall,
+  RedDoor,
+  YellowDoor,
+  GreenDoor,
+  BlueDoor,
 }
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   [' ']: MazeObject.Empty,
   ['#']: MazeObject.Wall,
+  ['R']: MazeObject.RedDoor,
+  ['Y']: MazeObject.YellowDoor,
+  ['G']: MazeObject.GreenDoor,
+  ['B']: MazeObject.BlueDoor,
 };
 
 /**
@@ -34,12 +43,32 @@ export class MainArea implements AreaState {
   private lightAngle = (Math.PI * 5) / 12;
   private lightDistance: number;
 
+  /**
+   * Get number of columns in the maze
+   */
   public get mazeWidth(): number {
     return this.maze[0].length;
   }
 
+  /**
+   * Get number of rows in the maze
+   */
   public get mazeHeight(): number {
     return this.maze.length;
+  }
+
+  /**
+   * Convert an (row,column) tile location into an absolute X,0,Z position inside the room
+   *
+   * Output:
+   *   X = X
+   *   Y = 0
+   *   Z = Z
+   */
+  public tileLocationToPosition(row: number, column: number): THREE.Vector3 {
+    const x = row * SCALE_BASE - SCALE_BASE * Math.floor(this.mazeHeight / 2);
+    const z = SCALE_BASE * Math.floor(this.mazeWidth / 2) - column * SCALE_BASE;
+    return new THREE.Vector3(x, 0, z);
   }
 
   constructor() {
@@ -54,7 +83,6 @@ export class MainArea implements AreaState {
   private calculateLight(): void {
     const lightWidth = this.mazeWidth * SCALE_BASE;
     const lightHeight = this.mazeHeight * SCALE_BASE;
-    console.log(lightWidth, lightHeight);
 
     this.light.castShadow = true;
 
@@ -93,6 +121,10 @@ export class MainArea implements AreaState {
     // this.explosion = area.createAudio('Explosion');
     // this.bgm = area.createAudio('BGM');
     // this.bgm.play(true);
+
+    // for (let i = 0; i < 10; i += 1) {
+    //   this.area.scene.add(this.area.game.assets.getObject('Grass').clone());
+    // }
 
     this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
     this.buildMaze();
@@ -138,26 +170,6 @@ export class MainArea implements AreaState {
   }
 
   /**
-   * Add a ground plane to the bottom of the maze
-   */
-  private buildGround(): void {
-    const width = this.mazeWidth;
-    const height = this.mazeHeight;
-
-    // Load and initialize the texture
-    const planeTexture = this.area.game.assets.getTexture('GrassTexture');
-    planeTexture.wrapS = THREE.RepeatWrapping;
-    planeTexture.wrapT = THREE.RepeatWrapping;
-    planeTexture.repeat.set(width * SCALE_BASE, height * SCALE_BASE);
-
-    // Build the plane object
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(), new THREE.MeshBasicMaterial({ map: planeTexture }));
-    plane.rotation.x = (3 * Math.PI) / 2;
-    plane.scale.set(width * SCALE_BASE + 2, height * SCALE_BASE + 2, 1);
-    this.area.scene.add(plane);
-  }
-
-  /**
    * Build all of the maze objects
    */
   private buildMaze(): void {
@@ -173,8 +185,26 @@ export class MainArea implements AreaState {
     // Create all of the instances in the maze
     for (const [rowIndex, row] of this.maze.entries()) {
       for (const [colIndex, col] of row.entries()) {
-        if (col === MazeObject.Wall) {
-          wallEntity.state.addWall(rowIndex, colIndex);
+        switch (col) {
+          case MazeObject.Wall:
+            wallEntity.state.addWall(rowIndex, colIndex, this);
+            break;
+
+          case MazeObject.RedDoor:
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Red, this));
+            break;
+
+          case MazeObject.YellowDoor:
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Yellow, this));
+            break;
+
+          case MazeObject.GreenDoor:
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Green, this));
+            break;
+
+          case MazeObject.BlueDoor:
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Blue, this));
+            break;
         }
       }
     }
