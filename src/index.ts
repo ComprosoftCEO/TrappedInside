@@ -16,8 +16,10 @@ import GrassOcc from 'assets/textures/grass-occ.jpg';
 import BrickColor from 'assets/textures/brick-color.jpg';
 import BrickNrm from 'assets/textures/brick-normal.jpg';
 import BrickOcc from 'assets/textures/brick-occ.jpg';
+
 import Wall from 'assets/objects/Wall.glb';
 import Door from 'assets/objects/Door.glb';
+import Key from 'assets/objects/Key.glb';
 
 const canvas = document.createElement('canvas');
 canvas.setAttribute('tabindex', '0');
@@ -54,6 +56,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
     }),
     game.assets.loadGLTFFile(Wall, (glb, manager) => {
       manager.saveObject('Wall', glb.scene.children[0]);
+    }),
+    game.assets.loadGLTFFile(Key, (glb, manager) => {
+      manager.saveObject('Key', glb.scene.children[0]);
     }),
     game.assets.loadGLTFFile(Door, (glb, manager) => {
       manager.saveObject('Door', glb.scene);

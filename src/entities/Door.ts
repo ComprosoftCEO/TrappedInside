@@ -2,16 +2,10 @@ import { MainArea } from 'areas/MainArea';
 import { BoxCollisionMask, GroupCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { Key } from 'engine/input';
+import { DoorColor } from './DoorColor';
 import * as THREE from 'three';
 
-export enum DoorColor {
-  Red,
-  Yellow,
-  Green,
-  Blue,
-}
-
-const MATERIALS: Record<DoorColor, THREE.Material> = {
+const DOOR_COLOR_MATERIALS: Record<DoorColor, THREE.Material> = {
   [DoorColor.Red]: new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1 }),
   [DoorColor.Yellow]: new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 1 }),
   [DoorColor.Green]: new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 1 }),
@@ -24,12 +18,11 @@ const MATERIALS: Record<DoorColor, THREE.Material> = {
 export class Door implements EntityState {
   public readonly tags: string[] = ['wall'];
 
-  private entity: Entity<this>;
+  public readonly doorColor: DoorColor;
 
+  private entity: Entity<this>;
   private row: number;
   private column: number;
-  private absPosition: THREE.Vector3;
-  private doorColor: DoorColor;
 
   // Store references to the mesh objects and collision mask components
   private leftDoor: THREE.Mesh;
@@ -46,10 +39,9 @@ export class Door implements EntityState {
   /**
    * Spawn a wall in a tile inside the maze
    */
-  constructor(row: number, column: number, color: DoorColor, area: MainArea) {
+  constructor(row: number, column: number, color: DoorColor) {
     this.row = row;
     this.column = column;
-    this.absPosition = area.tileLocationToPosition(row, column);
     this.doorColor = color;
   }
 
@@ -60,7 +52,7 @@ export class Door implements EntityState {
     const object = entity.area.game.assets.getObject('Door').clone();
     object.scale.y = 2.5;
     object.scale.z = 2.5;
-    object.position.copy(this.absPosition);
+    object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
 
     // Doors in even-numbered rows are horizontal (default)
     // Doors in odd-numbered rows are vertical
@@ -104,7 +96,7 @@ export class Door implements EntityState {
   }
 
   private configureMaterialColor(key: THREE.Mesh): void {
-    const material = MATERIALS[this.doorColor];
+    const material = DOOR_COLOR_MATERIALS[this.doorColor];
     if (typeof material !== 'undefined') {
       key.material = material;
     }

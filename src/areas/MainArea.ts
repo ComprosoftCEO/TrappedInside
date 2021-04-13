@@ -1,11 +1,13 @@
 import { Area, AreaState } from 'engine/area';
 import { AudioWrapper } from 'engine/audio';
 import { Player } from 'entities/Player';
-import * as THREE from 'three';
 import TestMaze from 'assets/levels/TestMaze.lvl';
 import { MazeWalls } from 'entities/MazeWalls';
 import { MazeFloor } from 'entities/MazeFloor';
-import { Door, DoorColor } from 'entities/Door';
+import { Door } from 'entities/Door';
+import { DoorColor } from 'entities/DoorColor';
+import { Key } from 'entities/Key';
+import * as THREE from 'three';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -20,6 +22,10 @@ export enum MazeObject {
   YellowDoor,
   GreenDoor,
   BlueDoor,
+  RedKey,
+  YellowKey,
+  GreenKey,
+  BlueKey,
 }
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
@@ -29,6 +35,10 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   ['Y']: MazeObject.YellowDoor,
   ['G']: MazeObject.GreenDoor,
   ['B']: MazeObject.BlueDoor,
+  ['r']: MazeObject.RedKey,
+  ['y']: MazeObject.YellowKey,
+  ['g']: MazeObject.GreenKey,
+  ['b']: MazeObject.BlueKey,
 };
 
 /**
@@ -191,19 +201,35 @@ export class MainArea implements AreaState {
             break;
 
           case MazeObject.RedDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Red, this));
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Red));
             break;
 
           case MazeObject.YellowDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Yellow, this));
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Yellow));
             break;
 
           case MazeObject.GreenDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Green, this));
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Green));
             break;
 
           case MazeObject.BlueDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Blue, this));
+            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Blue));
+            break;
+
+          case MazeObject.RedKey:
+            this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Red));
+            break;
+
+          case MazeObject.YellowKey:
+            this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Yellow));
+            break;
+
+          case MazeObject.GreenKey:
+            this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Green));
+            break;
+
+          case MazeObject.BlueKey:
+            this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Blue));
             break;
         }
       }
