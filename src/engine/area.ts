@@ -84,7 +84,7 @@ export class Area<State extends AreaState = AreaState> {
    * @param entity Entity to create
    * @returns The newly created entity object
    */
-  public createEntity(entity: EntityState): Entity {
+  public createEntity<T extends EntityState>(entity: T): Entity<T> {
     const newEntity = new Entity(this, entity);
     this.toCreate.add(newEntity);
     return newEntity;

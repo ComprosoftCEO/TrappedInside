@@ -4,9 +4,11 @@ import { clamp } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
 
-const ROTATION_SPEED = 0.005;
+const ROTATION_SPEED = 0.002;
 const MOVEMENT_SPEED = 0.1;
 const MAX_VERT_ANGLE = 0.75 * (Math.PI / 2);
+
+const PLAYER_BOX3_MASK = new THREE.Box3(new THREE.Vector3(-0.5, 0, -0.5), new THREE.Vector3(0.5, 3, 0.5));
 
 /**
  * Represents the player in the game
@@ -15,7 +17,7 @@ export class Player implements EntityState {
   public readonly tags: string[] = ['player'];
 
   private entity: Entity<this>;
-  private cube: THREE.Mesh;
+  private mask: BoxCollisionMask;
   private camera: THREE.PerspectiveCamera;
 
   private horDir = Math.PI / 2;
@@ -25,14 +27,9 @@ export class Player implements EntityState {
     this.entity = entity;
     this.entity.area.game.input.pointerLockEnabled = true;
 
-    // Default cube to represent the player
-    this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    this.cube.position.y = 1;
-    this.cube.scale.set(0.1, 0.25, 0.1);
-
-    // Build the collision mask
-    this.entity.mask = new BoxCollisionMask(this.cube);
-    // this.entity.mask.showMask = true;
+    // Box mask to detect collisions
+    this.mask = new BoxCollisionMask(PLAYER_BOX3_MASK);
+    this.entity.mask = this.mask;
 
     // Build the camera
     this.camera = new THREE.PerspectiveCamera(
@@ -41,7 +38,7 @@ export class Player implements EntityState {
       0.001,
       1000,
     );
-    this.camera.position.y = 1;
+    this.camera.position.y = 2;
     this.entity.area.camera = this.camera;
     this.entity.object = this.camera;
   }
@@ -88,10 +85,11 @@ export class Player implements EntityState {
     }
 
     this.updatePosition(deltaX, deltaZ);
-
-    this.entity.mask.update(this.cube);
   }
 
+  /**
+   * Update the camera rotation using the current rotation angles
+   */
   private updateCameraRotation(): void {
     const euler = new THREE.Euler(this.vertDir, this.horDir, 0, 'YXZ');
     this.camera.quaternion.setFromEuler(euler);
@@ -108,8 +106,33 @@ export class Player implements EntityState {
     const movementVector = new THREE.Vector3(-deltaZ, 0, -deltaX);
     movementVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.horDir);
 
-    this.cube.position.add(movementVector);
-    this.camera.position.add(movementVector);
+    const moveX = new THREE.Vector3(movementVector.x, 0, 0);
+    const moveZ = new THREE.Vector3(0, 0, movementVector.z);
+
+    // Try to move along X
+    // Undo the move if colliding with walls
+    this.mask.box.translate(moveX);
+    if (this.isCollidingWithWalls()) {
+      this.mask.box.translate(moveX.negate());
+    } else {
+      this.camera.position.add(moveX);
+    }
+
+    // Try to move along Z
+    // Undo the move if colliding with walls
+    this.mask.box.translate(moveZ);
+    if (this.isCollidingWithWalls()) {
+      this.mask.box.translate(moveZ.negate());
+    } else {
+      this.camera.position.add(moveZ);
+    }
+  }
+
+  /**
+   * Test if the player is currently colliding with any walls
+   */
+  private isCollidingWithWalls(): boolean {
+    return this.entity.area.findEntities('wall').some((wall) => this.entity.isCollidingWith(wall));
   }
 
   onTimer(_timerIndex: number): void {}
