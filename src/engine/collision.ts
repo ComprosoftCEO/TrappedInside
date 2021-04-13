@@ -30,6 +30,7 @@ export interface CollisionMask {
   // Collision methods common to all collision masks
   intersectsBox(box: THREE.Box3): boolean;
   intersectsSphere(sphere: THREE.Sphere): boolean;
+  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null;
 
   // Other methods
   containsPoint(point: THREE.Vector3): boolean;
@@ -86,6 +87,10 @@ export class BoxCollisionMask implements CollisionMask {
 
   intersectsSphere(sphere: THREE.Sphere): boolean {
     return this.box.intersectsSphere(sphere);
+  }
+
+  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+    return ray.intersectBox(this.box, new THREE.Vector3());
   }
 
   containsPoint(point: THREE.Vector3): boolean {
@@ -164,6 +169,10 @@ export class SphereCollisionMask implements CollisionMask {
 
   intersectsSphere(sphere: THREE.Sphere): boolean {
     return this.sphere.intersectsSphere(sphere);
+  }
+
+  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+    return ray.intersectSphere(this.sphere, new THREE.Vector3());
   }
 
   containsPoint(point: THREE.Vector3): boolean {
@@ -252,43 +261,36 @@ export class GroupCollisionMask implements CollisionMask {
   }
 
   isCollidingWith(other: CollisionMask): boolean {
-    for (const mask of this.masks) {
-      if (mask.isCollidingWith(other)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.masks.some((mask) => mask.isCollidingWith(other));
   }
 
   intersectsBox(box: THREE.Box3): boolean {
-    for (const mask of this.masks) {
-      if (mask.intersectsBox(box)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.masks.some((mask) => mask.intersectsBox(box));
   }
 
   intersectsSphere(sphere: THREE.Sphere): boolean {
+    return this.masks.some((mask) => mask.intersectsSphere(sphere));
+  }
+
+  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+    // Find the closest intersection
+    let min: THREE.Vector3 | null = null;
     for (const mask of this.masks) {
-      if (mask.intersectsSphere(sphere)) {
-        return true;
+      const intersection = mask.intersectsRay(ray);
+      if (intersection === null) {
+        continue;
+      }
+
+      if (min === null || intersection.distanceTo(ray.origin) < min.distanceTo(ray.origin)) {
+        min = intersection;
       }
     }
 
-    return false;
+    return min;
   }
 
   containsPoint(point: THREE.Vector3): boolean {
-    for (const mask of this.masks) {
-      if (mask.containsPoint(point)) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.masks.some((mask) => mask.containsPoint(point));
   }
 
   update(object: THREE.Object3D): void {
@@ -322,6 +324,10 @@ export class EmptyCollisionMask implements CollisionMask {
 
   intersectsSphere(_sphere: THREE.Sphere): boolean {
     return false;
+  }
+
+  intersectsRay(_ray: THREE.Ray): THREE.Vector3 | null {
+    return null;
   }
 
   containsPoint(_point: THREE.Vector3): boolean {

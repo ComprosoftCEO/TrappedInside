@@ -8,6 +8,7 @@ import { Door } from 'entities/Door';
 import { DoorColor } from 'entities/DoorColor';
 import { Key } from 'entities/Key';
 import * as THREE from 'three';
+import { Drone } from 'entities/Drone';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -26,6 +27,7 @@ export enum MazeObject {
   YellowKey,
   GreenKey,
   BlueKey,
+  Drone,
 }
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
@@ -39,6 +41,7 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   ['y']: MazeObject.YellowKey,
   ['g']: MazeObject.GreenKey,
   ['b']: MazeObject.BlueKey,
+  ['d']: MazeObject.Drone,
 };
 
 /**
@@ -230,6 +233,10 @@ export class MainArea implements AreaState {
 
           case MazeObject.BlueKey:
             this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Blue));
+            break;
+
+          case MazeObject.Drone:
+            this.area.createEntity(new Drone(rowIndex, colIndex));
             break;
         }
       }

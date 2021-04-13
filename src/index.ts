@@ -20,6 +20,7 @@ import BrickOcc from 'assets/textures/brick-occ.jpg';
 import Wall from 'assets/objects/Wall.glb';
 import Door from 'assets/objects/Door.glb';
 import Key from 'assets/objects/Key.glb';
+import Drone from 'assets/objects/Drone.glb';
 
 const canvas = document.createElement('canvas');
 canvas.setAttribute('tabindex', '0');
@@ -57,9 +58,6 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadGLTFFile(Wall, (glb, manager) => {
       manager.saveObject('Wall', glb.scene.children[0]);
     }),
-    game.assets.loadGLTFFile(Key, (glb, manager) => {
-      manager.saveObject('Key', glb.scene.children[0]);
-    }),
     game.assets.loadGLTFFile(Door, (glb, manager) => {
       manager.saveObject('Door', glb.scene);
       for (const animation of glb.animations) {
@@ -67,23 +65,27 @@ async function loadAllAssets(game: Game): Promise<Game> {
       }
 
       // Fix the material
-      adjustKeyHoleEmission(glb.scene.children[0].children[0] as THREE.Mesh);
-      adjustDoorEmission(glb.scene.children[1] as THREE.Mesh);
-      adjustDoorEmission(glb.scene.children[2] as THREE.Mesh);
+      adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
+      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+    }),
+    game.assets.loadGLTFFile(Key, (glb, manager) => {
+      manager.saveObject('Key', glb.scene.children[0]);
+    }),
+    game.assets.loadGLTFFile(Drone, (glb, manager) => {
+      const drone = glb.scene.children[0];
+      manager.saveObject('Drone', drone);
+
+      adjustEmission(drone.children[0] as THREE.Mesh, 0x737373, 0.5);
+      adjustEmission(drone.children[2] as THREE.Mesh, 0x2760f2, 0.25);
     }),
   ]);
 
   return game;
 }
 
-function adjustDoorEmission(mesh: THREE.Mesh): void {
+function adjustEmission(mesh: THREE.Mesh, color: string | number | THREE.Color, intensity: number) {
   const material = mesh.material as THREE.MeshStandardMaterial;
-  material.emissive.setRGB(122 / 255, 108 / 255, 108 / 255);
-  material.emissiveIntensity = 0.25;
-}
-
-function adjustKeyHoleEmission(mesh: THREE.Mesh): void {
-  const material = mesh.material as THREE.MeshStandardMaterial;
-  material.emissive.setRGB(115 / 255, 115 / 255, 115 / 255);
-  material.emissiveIntensity = 0.25;
+  material.emissive.set(color);
+  material.emissiveIntensity = intensity;
 }
