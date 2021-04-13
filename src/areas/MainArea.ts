@@ -4,6 +4,7 @@ import { Player } from 'entities/Player';
 import * as THREE from 'three';
 import TestMaze from 'assets/levels/TestMaze.lvl';
 import { MazeWalls } from 'entities/MazeWalls';
+import { MazeFloor } from 'entities/MazeFloor';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -26,9 +27,12 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
  */
 export class MainArea implements AreaState {
   private area: Area<this>;
-  private walls: THREE.InstancedMesh;
 
   public readonly maze: MazeObject[][] = [];
+
+  private light: THREE.DirectionalLight;
+  private lightAngle = (Math.PI * 5) / 12;
+  private lightDistance: number;
 
   public get mazeWidth(): number {
     return this.maze[0].length;
@@ -40,6 +44,32 @@ export class MainArea implements AreaState {
 
   constructor() {
     this.maze = MainArea.stringToLevel(TestMaze);
+    this.light = new THREE.DirectionalLight(0xffffff, 1);
+    this.calculateLight();
+  }
+
+  /**
+   * Compute information about the directional light
+   */
+  private calculateLight(): void {
+    const lightWidth = this.mazeWidth * SCALE_BASE;
+    const lightHeight = this.mazeHeight * SCALE_BASE;
+    console.log(lightWidth, lightHeight);
+
+    this.light.castShadow = true;
+
+    this.light.shadow.camera.top = lightHeight / 2;
+    this.light.shadow.camera.bottom = -lightHeight / 2;
+    this.light.shadow.camera.left = -lightWidth / 2;
+    this.light.shadow.camera.right = lightWidth / 2;
+
+    // We want light to cover scene when at the 45 degree angle
+    //
+    //                            Light
+    //                              |
+    // L          [Center] - - - - -R
+    this.lightDistance = lightWidth / Math.cos(Math.PI / 4);
+    this.updateLightAngle();
   }
 
   onCreate(area: Area<this>): void {
@@ -50,10 +80,12 @@ export class MainArea implements AreaState {
     area.scene.background = texture;
 
     // Add a static light
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(37, 107, -99);
-    area.scene.add(light);
+    area.scene.add(this.light);
     area.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+    // Enable shadows
+    area.game.renderer.shadowMap.enabled = true;
+    this.area.setTimer(0, 1000, true);
 
     // Load the audio files
     // this.shoot = area.createAudio('Shoot');
@@ -62,7 +94,7 @@ export class MainArea implements AreaState {
     // this.bgm = area.createAudio('BGM');
     // this.bgm.play(true);
 
-    this.buildGround();
+    this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
     this.buildMaze();
 
     // Spawn the main objects
@@ -148,7 +180,23 @@ export class MainArea implements AreaState {
     }
   }
 
-  onTimer(_timerIndex: number): void {}
+  onTimer(timerIndex: number): void {
+    if (timerIndex === 0) {
+      this.lightAngle += Math.PI / 64;
+      this.lightAngle %= 2 * Math.PI;
+      this.updateLightAngle();
+    }
+  }
+
+  /**
+   * Update the angle of the sunlight in the scene
+   */
+  private updateLightAngle(): void {
+    this.light.position.x = 0;
+    this.light.position.y = this.lightDistance * Math.sin(this.lightAngle);
+    this.light.position.z = -this.lightDistance * Math.cos(this.lightAngle);
+    this.light.visible = this.lightAngle <= Math.PI;
+  }
 
   onStep(): void {}
 

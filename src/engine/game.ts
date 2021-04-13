@@ -25,9 +25,9 @@ export class Game {
   private nextArea: AreaState | null = null;
 
   /* Objects required for drawing */
-  private renderer: THREE.Renderer;
-  private canvas: HTMLCanvasElement;
-  private g2d: CanvasRenderingContext2D;
+  public readonly renderer: THREE.WebGLRenderer;
+  private readonly canvas: HTMLCanvasElement;
+  private readonly g2d: CanvasRenderingContext2D;
 
   private running = false;
 

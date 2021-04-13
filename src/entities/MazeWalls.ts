@@ -21,23 +21,23 @@ export class MazeWalls implements EntityState {
   private currentWall = 0;
 
   private startX: number;
-  private startZ: number;
+  private endZ: number;
 
   constructor(numWalls: number, area: Area<MainArea>) {
     this.mask = new GroupCollisionMask();
     this.startX = 0 - SCALE_BASE * Math.floor(area.state.mazeHeight / 2);
-    this.startZ = 0 - SCALE_BASE * Math.floor(area.state.mazeWidth / 2);
+    this.endZ = SCALE_BASE * Math.floor(area.state.mazeWidth / 2);
 
     // Initialize the box material
     BOX_MATERIAL.map = this.buildWallTexture('BrickColor', area);
     BOX_MATERIAL.normalMap = this.buildWallTexture('BrickNormal', area);
     BOX_MATERIAL.aoMap = this.buildWallTexture('BrickOcclusion', area);
-    BOX_MATERIAL.side = THREE.DoubleSide;
+    BOX_MATERIAL.side = THREE.FrontSide;
 
     // Create instances for all walls
     this.walls = new THREE.InstancedMesh(BOX_GEOMETRY, BOX_MATERIAL, numWalls);
-
-    console.log(new THREE.Box3().setFromObject(new THREE.Mesh(new THREE.BoxGeometry())));
+    this.walls.castShadow = true;
+    this.walls.receiveShadow = true;
   }
 
   /**
@@ -53,6 +53,14 @@ export class MazeWalls implements EntityState {
 
   /**
    * Set a given X,Z coordinate to be a wall
+   *
+   *        N [+X]
+   *
+   * W [-Z]      [+Z] E
+   *
+   *        X [-X]
+   *
+   * Notice that we have to flip Z because THREE.js puts +Z on the left
    */
   public addWall(x: number, z: number): void {
     if (this.currentWall >= this.walls.count) {
@@ -61,7 +69,7 @@ export class MazeWalls implements EntityState {
 
     // Set the wall translation value
     const matrix = new THREE.Matrix4();
-    matrix.makeTranslation(this.startX + x * SCALE_BASE, SCALE_HEIGHT / 2 - 0.5, this.startZ + z * SCALE_BASE);
+    matrix.makeTranslation(this.startX + x * SCALE_BASE, SCALE_HEIGHT / 2 - 1, this.endZ - z * SCALE_BASE);
     matrix.scale(new THREE.Vector3(SCALE_BASE, SCALE_HEIGHT, SCALE_BASE));
     this.walls.setMatrixAt(this.currentWall, matrix);
 
