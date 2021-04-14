@@ -3,8 +3,11 @@ import { Entity, EntityState } from 'engine/entity';
 import { Drone } from './Drone';
 import * as THREE from 'three';
 
-const BULLET_MESH = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-BULLET_MESH.scale.set(0.25, 0.25, 0.25);
+const BULLET_MESH = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
+BULLET_MESH.scale.set(0.15, 0.15, 0.15);
+
+const MOVEMENT_SPEED = 0.5;
+const DESTROY_TICKS = 250;
 
 /**
  * Bullet that is shot from a drone
@@ -35,13 +38,13 @@ export class DroneBullet implements EntityState {
     this.entity.mask = new SphereCollisionMask(this.entity.object);
 
     // Timer to specify when to destroy the bullet
-    this.entity.setTimer(0, 250);
+    this.entity.setTimer(0, DESTROY_TICKS);
   }
 
   onDestroy(): void {}
 
   onStep(): void {
-    this.entity.object.translateX(0.5);
+    this.entity.object.translateX(MOVEMENT_SPEED);
 
     this.entity.mask.update(this.entity.object);
     this.testForWallCollision();

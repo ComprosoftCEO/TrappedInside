@@ -30,7 +30,7 @@ export interface CollisionMask {
   // Collision methods common to all collision masks
   intersectsBox(box: THREE.Box3): boolean;
   intersectsSphere(sphere: THREE.Sphere): boolean;
-  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null;
+  intersectRay(ray: THREE.Ray): THREE.Vector3 | null;
 
   // Other methods
   containsPoint(point: THREE.Vector3): boolean;
@@ -89,7 +89,7 @@ export class BoxCollisionMask implements CollisionMask {
     return this.box.intersectsSphere(sphere);
   }
 
-  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+  intersectRay(ray: THREE.Ray): THREE.Vector3 | null {
     return ray.intersectBox(this.box, new THREE.Vector3());
   }
 
@@ -171,7 +171,7 @@ export class SphereCollisionMask implements CollisionMask {
     return this.sphere.intersectsSphere(sphere);
   }
 
-  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+  intersectRay(ray: THREE.Ray): THREE.Vector3 | null {
     return ray.intersectSphere(this.sphere, new THREE.Vector3());
   }
 
@@ -272,11 +272,11 @@ export class GroupCollisionMask implements CollisionMask {
     return this.masks.some((mask) => mask.intersectsSphere(sphere));
   }
 
-  intersectsRay(ray: THREE.Ray): THREE.Vector3 | null {
+  intersectRay(ray: THREE.Ray): THREE.Vector3 | null {
     // Find the closest intersection
     let min: THREE.Vector3 | null = null;
     for (const mask of this.masks) {
-      const intersection = mask.intersectsRay(ray);
+      const intersection = mask.intersectRay(ray);
       if (intersection === null) {
         continue;
       }
@@ -326,7 +326,7 @@ export class EmptyCollisionMask implements CollisionMask {
     return false;
   }
 
-  intersectsRay(_ray: THREE.Ray): THREE.Vector3 | null {
+  intersectRay(_ray: THREE.Ray): THREE.Vector3 | null {
     return null;
   }
 

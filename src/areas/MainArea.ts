@@ -7,8 +7,9 @@ import { MazeFloor } from 'entities/MazeFloor';
 import { Door } from 'entities/Door';
 import { DoorColor } from 'entities/DoorColor';
 import { Key } from 'entities/Key';
-import * as THREE from 'three';
 import { Drone } from 'entities/Drone';
+import { MazeObject, stringToMaze } from './MazeObject';
+import * as THREE from 'three';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -16,41 +17,13 @@ export const SCALE_BASE = 5;
 // Height of the walls
 export const SCALE_HEIGHT = 20;
 
-export enum MazeObject {
-  Empty,
-  Wall,
-  RedDoor,
-  YellowDoor,
-  GreenDoor,
-  BlueDoor,
-  RedKey,
-  YellowKey,
-  GreenKey,
-  BlueKey,
-  Drone,
-}
-
-const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
-  [' ']: MazeObject.Empty,
-  ['#']: MazeObject.Wall,
-  ['R']: MazeObject.RedDoor,
-  ['Y']: MazeObject.YellowDoor,
-  ['G']: MazeObject.GreenDoor,
-  ['B']: MazeObject.BlueDoor,
-  ['r']: MazeObject.RedKey,
-  ['y']: MazeObject.YellowKey,
-  ['g']: MazeObject.GreenKey,
-  ['b']: MazeObject.BlueKey,
-  ['d']: MazeObject.Drone,
-};
-
 /**
  * Represents the main area in the game
  */
 export class MainArea implements AreaState {
   private area: Area<this>;
 
-  public readonly maze: MazeObject[][] = [];
+  public readonly maze: MazeObject[][];
 
   private light: THREE.DirectionalLight;
   private lightAngle = (Math.PI * 5) / 12;
@@ -84,8 +57,18 @@ export class MainArea implements AreaState {
     return new THREE.Vector3(x, 0, z);
   }
 
+  /**
+   * Calculate the Row,Column value given a position
+   * @param position
+   */
+  public positionToTileLocation(position: THREE.Vector3): [number, number] {
+    const row = Math.round(position.x / SCALE_BASE) + Math.floor(this.mazeHeight / 2);
+    const col = Math.floor(this.mazeWidth / 2) - Math.round(position.z / SCALE_BASE);
+    return [row, col];
+  }
+
   constructor() {
-    this.maze = MainArea.stringToLevel(TestMaze);
+    this.maze = stringToMaze(TestMaze);
     this.light = new THREE.DirectionalLight(0xffffff, 1);
     this.calculateLight();
   }
@@ -144,42 +127,6 @@ export class MainArea implements AreaState {
 
     // Spawn the main objects
     this.area.createEntity(new Player());
-  }
-
-  /**
-   * Map a string to an array of maze objects
-   */
-  private static stringToLevel(input: string): MazeObject[][] {
-    // Split by newlines
-    const lines = input.split(/\r?\n/);
-
-    // Figure out the longest line
-    let maxLength = 0;
-    for (const line of lines) {
-      maxLength = Math.max(maxLength, line.length);
-    }
-
-    const result: MazeObject[][] = [];
-    for (const line of lines) {
-      const mazeRow: MazeObject[] = [];
-      for (const char of line) {
-        const lookup = MAZE_OBJECT_LOOKUP[char];
-        if (typeof lookup === 'undefined') {
-          mazeRow.push(MazeObject.Empty);
-        } else {
-          mazeRow.push(lookup);
-        }
-      }
-
-      // Make sure all lines are the same length
-      while (mazeRow.length < maxLength) {
-        mazeRow.push(MazeObject.Empty);
-      }
-
-      result.push(mazeRow);
-    }
-
-    return result;
   }
 
   /**
