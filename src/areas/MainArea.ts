@@ -10,6 +10,7 @@ import { Key } from 'entities/Key';
 import { Drone } from 'entities/Drone';
 import { MazeObject, stringToMaze } from './MazeObject';
 import * as THREE from 'three';
+import { HUD } from 'entities/HUD';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -25,9 +26,18 @@ export class MainArea implements AreaState {
 
   public readonly maze: MazeObject[][];
 
+  // Manage the sunlight
   private light: THREE.DirectionalLight;
   private lightAngle = (Math.PI * 5) / 12;
   private lightDistance: number;
+
+  // Store the last known tile location for the player
+  private playerTileLocation: [number, number];
+  private playerAngle: number; // Angle in radians
+
+  constructor() {
+    this.maze = stringToMaze(TestMaze);
+  }
 
   /**
    * Get number of columns in the maze
@@ -67,10 +77,53 @@ export class MainArea implements AreaState {
     return [row, col];
   }
 
-  constructor() {
-    this.maze = stringToMaze(TestMaze);
+  /**
+   * Get the last (row, column) position of the player in the maze
+   */
+  public getPlayerTileLocation(): [number, number] {
+    return this.playerTileLocation;
+  }
+
+  /**
+   * Get the last known angle of the player
+   */
+  public getPlayerAngle(): number {
+    return this.playerAngle;
+  }
+
+  onCreate(area: Area<this>): void {
+    this.area = area;
+
+    // Configure the background
+    const texture = area.game.assets.getTexture('SkyboxBG');
+    area.scene.background = texture;
+
+    // Add a static light
     this.light = new THREE.DirectionalLight(0xffffff, 1);
     this.calculateLight();
+    area.scene.add(this.light);
+    area.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+    // Enable shadows
+    area.game.renderer.shadowMap.enabled = true;
+    this.area.setTimer(0, 1000, true);
+
+    // Load the audio files
+    // this.shoot = area.createAudio('Shoot');
+    // this.hit = area.createAudio('Hit');
+    // this.explosion = area.createAudio('Explosion');
+    // this.bgm = area.createAudio('BGM');
+    // this.bgm.play(true);
+
+    // for (let i = 0; i < 10; i += 1) {
+    //   this.area.scene.add(this.area.game.assets.getObject('Grass').clone());
+    // }
+
+    this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
+    this.buildMaze();
+
+    // Spawn the main objects
+    this.area.createEntity(new HUD());
   }
 
   /**
@@ -96,43 +149,12 @@ export class MainArea implements AreaState {
     this.updateLightAngle();
   }
 
-  onCreate(area: Area<this>): void {
-    this.area = area;
-
-    // Configure the background
-    const texture = area.game.assets.getTexture('SkyboxBG');
-    area.scene.background = texture;
-
-    // Add a static light
-    area.scene.add(this.light);
-    area.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-    // Enable shadows
-    area.game.renderer.shadowMap.enabled = true;
-    this.area.setTimer(0, 1000, true);
-
-    // Load the audio files
-    // this.shoot = area.createAudio('Shoot');
-    // this.hit = area.createAudio('Hit');
-    // this.explosion = area.createAudio('Explosion');
-    // this.bgm = area.createAudio('BGM');
-    // this.bgm.play(true);
-
-    // for (let i = 0; i < 10; i += 1) {
-    //   this.area.scene.add(this.area.game.assets.getObject('Grass').clone());
-    // }
-
-    this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
-    this.buildMaze();
-
-    // Spawn the main objects
-    this.area.createEntity(new Player());
-  }
-
   /**
    * Build all of the maze objects
    */
   private buildMaze(): void {
+    let playerPosition: [number, number] | null = null;
+
     // Calcualte the total number of walls in the maze
     const numWalls = this.maze.reduce(
       (n, row) => n + row.reduce((n, cell) => n + Number(cell === MazeObject.Wall), 0),
@@ -148,6 +170,12 @@ export class MainArea implements AreaState {
         switch (col) {
           case MazeObject.Wall:
             wallEntity.state.addWall(rowIndex, colIndex, this);
+            break;
+
+          case MazeObject.Player:
+            if (playerPosition === null) {
+              playerPosition = [rowIndex, colIndex];
+            }
             break;
 
           case MazeObject.RedDoor:
@@ -188,6 +216,13 @@ export class MainArea implements AreaState {
         }
       }
     }
+
+    // Create the player, choose center of maze as default position
+    if (playerPosition === null) {
+      playerPosition = [Math.floor(this.mazeWidth / 2), Math.floor(this.mazeHeight / 2)];
+    }
+    this.playerTileLocation = playerPosition;
+    this.area.createEntity(new Player(playerPosition[0], playerPosition[1]));
   }
 
   onTimer(timerIndex: number): void {
@@ -208,7 +243,22 @@ export class MainArea implements AreaState {
     this.light.visible = this.lightAngle <= Math.PI;
   }
 
-  onStep(): void {}
+  onStep(): void {
+    this.updatePlayerTileLocationAndAngle();
+  }
+
+  /**
+   * Update the internal tile location for the player
+   */
+  private updatePlayerTileLocationAndAngle(): void {
+    const player = this.area.findFirstEntity('player');
+    if (player === null) {
+      return;
+    }
+
+    this.playerTileLocation = this.positionToTileLocation(player.object.position);
+    this.playerAngle = (player.state as Player).getFacingAngle();
+  }
 
   onDraw(_g2d: CanvasRenderingContext2D): void {}
 }

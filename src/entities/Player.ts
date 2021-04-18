@@ -1,8 +1,9 @@
 import { Entity, EntityState } from 'engine/entity';
 import { Key } from 'engine/input';
-import { clamp } from 'engine/helpers';
+import { clamp, wrapNumber } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
+import { MainArea } from 'areas/MainArea';
 
 const ROTATION_SPEED = 0.002;
 const MOVEMENT_SPEED = 0.1;
@@ -20,16 +21,29 @@ export class Player implements EntityState {
   private mask: BoxCollisionMask;
   private camera: THREE.PerspectiveCamera;
 
+  private startRow: number;
+  private startCol: number;
+
   private horDir = Math.PI / 2;
   private vertDir = 0;
 
+  constructor(startRow: number, startCol: number) {
+    this.startRow = startRow;
+    this.startCol = startCol;
+  }
+
+  /**
+   * Get the angle that the player is facing
+   */
+  public getFacingAngle(): number {
+    return wrapNumber(this.horDir, 0, 2 * Math.PI, false);
+  }
+
   onCreate(entity: Entity<this>): void {
     this.entity = entity;
-    this.entity.area.game.input.pointerLockEnabled = true;
 
-    // Box mask to detect collisions
-    this.mask = new BoxCollisionMask(PLAYER_BOX3_MASK);
-    this.entity.mask = this.mask;
+    // Enable pointer lock for user input
+    this.entity.area.game.input.pointerLockEnabled = true;
 
     // Build the camera
     this.camera = new THREE.PerspectiveCamera(
@@ -38,9 +52,18 @@ export class Player implements EntityState {
       0.001,
       1000,
     );
-    this.camera.position.y = 2;
     this.entity.area.camera = this.camera;
     this.entity.object = this.camera;
+
+    // Set the start position in the maze
+    const position = (this.entity.area.state as MainArea).tileLocationToPosition(this.startRow, this.startCol);
+    this.camera.position.copy(position);
+    this.camera.position.y = 2;
+
+    // Box mask to detect collisions
+    this.mask = new BoxCollisionMask(PLAYER_BOX3_MASK);
+    this.entity.mask = this.mask;
+    this.mask.box.translate(position);
   }
 
   onDestroy(): void {}

@@ -1,5 +1,6 @@
 export enum MazeObject {
   Empty,
+  Player,
   Wall,
   RedDoor,
   YellowDoor,
@@ -14,6 +15,7 @@ export enum MazeObject {
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   [' ']: MazeObject.Empty,
+  ['S']: MazeObject.Player,
   ['#']: MazeObject.Wall,
   ['R']: MazeObject.RedDoor,
   ['Y']: MazeObject.YellowDoor,
