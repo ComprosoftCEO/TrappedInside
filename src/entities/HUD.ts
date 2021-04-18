@@ -22,6 +22,29 @@ const GRASS_COLOR = '#a0d914';
 const OUTSIDE_COLOR = '#a0a914';
 const WALL_COLOR = '#6b6764';
 const UNVISITED_COLOR = '#3b3b3b';
+const DRONE_COLOR = 'lightgrey';
+
+// Lookup table for map objects
+type DrawFunction = (
+  g2d: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  row: number,
+  col: number,
+  entity: Entity<HUD>,
+) => void;
+
+const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
+  [MazeObject.Wall]: mapDrawWall,
+  [MazeObject.RedKey]: mapDrawIcon('RedKey'),
+  [MazeObject.YellowKey]: mapDrawIcon('YellowKey'),
+  [MazeObject.GreenKey]: mapDrawIcon('GreenKey'),
+  [MazeObject.BlueKey]: mapDrawIcon('BlueKey'),
+  [MazeObject.RedDoor]: mapDrawDoor('red'),
+  [MazeObject.YellowDoor]: mapDrawDoor('yellow'),
+  [MazeObject.GreenDoor]: mapDrawDoor('green'),
+  [MazeObject.BlueDoor]: mapDrawDoor('blue'),
+};
 
 /**
  * Draw the heads-up display
@@ -105,12 +128,32 @@ export class HUD implements EntityState {
           continue;
         }
 
-        const mazeObject = mainArea.maze[row][col];
-        if (mazeObject === MazeObject.Wall) {
-          g2d.fillStyle = WALL_COLOR;
-          g2d.fillRect(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+        const drawFunc = MAP_DRAW_FUNCTIONS[mainArea.maze[row][col]];
+        if (typeof drawFunc !== 'undefined') {
+          drawFunc(g2d, x, y, row, col, this.entity);
         }
       }
+    }
+
+    // Draw any drones in the maze
+    for (const drone of this.entity.area.findEntities('drone')) {
+      const [row, col] = mainArea.positionToTileLocation(drone.object.position);
+
+      // Make sure the player can actually see the tile
+      if (!this.mapVisited[row][col]) {
+        continue;
+      }
+
+      const x = MARGIN_PX + col * TILE_SIZE_PX;
+      const y = MARGIN_PX + row * TILE_SIZE_PX;
+
+      g2d.fillStyle = DRONE_COLOR;
+      g2d.beginPath();
+      g2d.arc(x + TILE_SIZE_PX / 2, y + TILE_SIZE_PX / 2, TILE_SIZE_PX / 3, 0, 2 * Math.PI);
+      g2d.fill();
+      g2d.strokeStyle = 'black';
+      g2d.lineWidth = 1;
+      g2d.stroke();
     }
 
     // Also draw an arrow to represent the player
@@ -122,7 +165,7 @@ export class HUD implements EntityState {
     drawArrow(g2d, playerX, playerY, mainArea.getPlayerAngle(), TILE_SIZE_PX);
   }
 
-  onTimer(timerIndex: number): void {}
+  onTimer(_timerIndex: number): void {}
 
   onDraw(g2d: CanvasRenderingContext2D): void {
     if (this.shouldDrawMap) {
@@ -305,4 +348,31 @@ function drawArrow(g2d: CanvasRenderingContext2D, centerX: number, centerY: numb
   g2d.moveTo(headX, headY);
   g2d.lineTo(headX - headLen * Math.cos(angle + headAngle), headY + headLen * Math.sin(angle + headAngle));
   g2d.stroke();
+}
+
+/**
+ * Map drawing functions
+ */
+function mapDrawWall(g2d: CanvasRenderingContext2D, x: number, y: number): void {
+  g2d.fillStyle = WALL_COLOR;
+  g2d.fillRect(x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+}
+
+function mapDrawIcon(name: string): DrawFunction {
+  return (g2d, x, y, _row, _col, entity) => {
+    const iconImage = entity.area.game.assets.getImage(name);
+    g2d.drawImage(iconImage, x, y, TILE_SIZE_PX, TILE_SIZE_PX);
+  };
+}
+
+function mapDrawDoor(color: string): DrawFunction {
+  return (g2d, x, y, row) => {
+    g2d.fillStyle = color;
+
+    if (row % 2 === 1) {
+      g2d.fillRect(x + TILE_SIZE_PX / 4, y, TILE_SIZE_PX / 2, TILE_SIZE_PX);
+    } else {
+      g2d.fillRect(x, y + TILE_SIZE_PX / 4, TILE_SIZE_PX, TILE_SIZE_PX / 2);
+    }
+  };
 }

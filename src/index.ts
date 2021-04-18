@@ -22,6 +22,11 @@ import Door from 'assets/objects/Door.glb';
 import Key from 'assets/objects/Key.glb';
 import Drone from 'assets/objects/Drone.glb';
 
+import RedKey from 'assets/images/RedKey.png';
+import YellowKey from 'assets/images/YellowKey.png';
+import GreenKey from 'assets/images/GreenKey.png';
+import BlueKey from 'assets/images/BlueKey.png';
+
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
 document.body.appendChild(gameCanvas);
@@ -84,6 +89,10 @@ async function loadAllAssets(game: Game): Promise<Game> {
       adjustEmission(drone.children[0] as THREE.Mesh, 0x737373, 0.5);
       adjustEmission(drone.children[2] as THREE.Mesh, 0x2760f2, 0.25);
     }),
+    game.assets.loadImage('RedKey', RedKey),
+    game.assets.loadImage('YellowKey', YellowKey),
+    game.assets.loadImage('GreenKey', GreenKey),
+    game.assets.loadImage('BlueKey', BlueKey),
   ]);
 
   return game;
