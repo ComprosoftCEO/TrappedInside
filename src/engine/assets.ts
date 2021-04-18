@@ -18,6 +18,7 @@ export interface CubeTextureFiles {
  */
 export class AssetsManager {
   private audioLoader: THREE.AudioLoader;
+  private imageLoader: THREE.ImageLoader;
   private textureLoader: THREE.TextureLoader;
   private cubeTextureLoader: THREE.CubeTextureLoader;
   private objectLoader: THREE.ObjectLoader;
@@ -27,6 +28,7 @@ export class AssetsManager {
 
   private textures: Record<string, THREE.Texture> = {};
   private sounds: Record<string, AudioBuffer> = {};
+  private images: Record<string, HTMLImageElement> = {};
   private objects: Record<string, THREE.Object3D> = {};
   private materials: Record<string, THREE.Material> = {};
   private animations: Record<string, THREE.AnimationClip> = {};
@@ -35,9 +37,10 @@ export class AssetsManager {
    * Constructed internally by the game entine
    */
   constructor() {
+    this.audioLoader = new THREE.AudioLoader();
+    this.imageLoader = new THREE.ImageLoader();
     this.textureLoader = new THREE.TextureLoader();
     this.cubeTextureLoader = new THREE.CubeTextureLoader();
-    this.audioLoader = new THREE.AudioLoader();
     this.objectLoader = new THREE.ObjectLoader();
     this.materialLoader = new THREE.MaterialLoader();
     this.animationLoader = new THREE.AnimationLoader();
@@ -166,6 +169,52 @@ export class AssetsManager {
     }
 
     return audio;
+  }
+
+  /**
+   * Load images from a file
+   * Replaces any existing loaded image with the same name.
+   *
+   * Throws an exception if it fails to load (for whatever reason).
+   *
+   * @param name Name of the image to load
+   * @param file Filepath of the image on the web server
+   * @returns Promise to wait for asset to finish loading
+   */
+  public loadImage(name: string, file: string): Promise<void> {
+    return this.imageLoader
+      .loadAsync(file, AssetsManager.onProgress('image', name, file))
+      .then((image: HTMLImageElement) => {
+        this.images[name] = image;
+      })
+      .catch(AssetsManager.onError('audio', name, file));
+  }
+
+  /**
+   * Save a image into the list of assets
+   * Replaces any existing loaded image with the same name.
+   *
+   * @param name Name of the image to save
+   * @param audio Image to save
+   */
+  public saveImage(name: string, image: HTMLImageElement): void {
+    this.images[name] = image;
+  }
+
+  /**
+   * Get a saved image from the list of assets.
+   * Throws an exception if the image does not exist.
+   *
+   * @param name Name of the image to get
+   * @returns The saved image
+   */
+  public getImage(name: string): HTMLImageElement {
+    const image = this.images[name];
+    if (typeof image === 'undefined') {
+      throw new Error(`No such loaded image '${name}'`);
+    }
+
+    return image;
   }
 
   /**
