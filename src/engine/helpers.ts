@@ -101,3 +101,23 @@ export function isAngleBetween(angle: number, a: number, b: number): boolean {
 export function normalizeAngle(angle: number): number {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
+
+/**
+ * Pick the number that is closest to the target number
+ *
+ * @param input Number to get
+ * @param values List of target numbers
+ */
+export function pickClosest(input: number, values: number[]): number {
+  let minDistance = Infinity;
+  let closestValue = input;
+  for (const number of values) {
+    const distance = Math.abs(input - number);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestValue = number;
+    }
+  }
+
+  return closestValue;
+}

@@ -22,11 +22,16 @@ import Door from 'assets/objects/Door.glb';
 import Key from 'assets/objects/Key.glb';
 import Drone from 'assets/objects/Drone.glb';
 
-const canvas = document.createElement('canvas');
-canvas.setAttribute('tabindex', '0');
-document.body.appendChild(canvas);
+// Build the canvas objects
+const gameCanvas = document.createElement('canvas');
+document.body.appendChild(gameCanvas);
 
-const game = new Game(canvas);
+const overlayCanvas = document.createElement('canvas');
+overlayCanvas.setAttribute('tabindex', '0');
+overlayCanvas.classList.add('overlay');
+document.body.appendChild(overlayCanvas);
+
+const game = new Game(gameCanvas, overlayCanvas);
 // game.screenSize = [640, 480];
 loadAllAssets(game)
   .then((game) => {

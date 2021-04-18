@@ -44,6 +44,10 @@ export class Area<State extends AreaState = AreaState> {
   /* Handle timers */
   private readonly timers = new Map<number, TimerEntry>();
 
+  /* Overlay drawing (Default resolution is 16:9) */
+  public overlayWidth = 768;
+  public overlayHeight = 432;
+
   /**
    * This class is constructed by the game engine,
    *  so you don't need to worry about creating this manually.
@@ -335,7 +339,7 @@ export class Area<State extends AreaState = AreaState> {
    * This method is used internally by the game engine and
    *  should NOT be called directly!
    */
-  _drawScene(renderer: THREE.Renderer, g2d: CanvasRenderingContext2D): void {
+  _drawScene(renderer: THREE.Renderer, overlay: HTMLCanvasElement): void {
     // Add all of the collision masks to the scene
     for (const entity of this.allEntities) {
       entity.mask._drawMask(this.scene);
@@ -343,6 +347,12 @@ export class Area<State extends AreaState = AreaState> {
 
     // Render the scene itself
     renderer.render(this.scene, this.camera);
+
+    // Clear the overlay before drawing
+    const g2d = overlay.getContext('2d');
+    overlay.width = this.overlayWidth;
+    overlay.height = this.overlayHeight;
+    g2d.clearRect(0, 0, this.overlayWidth, this.overlayHeight);
 
     // Draw any overlays
     this.state.onDraw(g2d);

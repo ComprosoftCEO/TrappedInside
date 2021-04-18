@@ -27,24 +27,28 @@ export class Game {
   /* Objects required for drawing */
   public readonly renderer: THREE.WebGLRenderer;
   private readonly canvas: HTMLCanvasElement;
-  private readonly g2d: CanvasRenderingContext2D;
+  private readonly overlayCanvas: HTMLCanvasElement;
 
   private running = false;
 
   /**
-   * Create a new game object
+   * Create a new game object.
    *
-   * @param canvas
+   * The game expects the overlay canvas to be directly on top of the game canvas.
+   * Thus, user input is actually handled by the overlay canvas, NOT the game canvas.
+   *
+   * @param gameCanvas Canvas to use for drawing the game
+   * @param overlayCanvas Canvas to use for the overlay drawing
    * @param area
    */
-  public constructor(canvas: HTMLCanvasElement) {
-    this.input = new InputManager(canvas);
+  public constructor(gameCanvas: HTMLCanvasElement, overlayCanvas: HTMLCanvasElement) {
+    this.input = new InputManager(overlayCanvas);
     this.assets = new AssetsManager();
     this.resources = new ResourceManager();
 
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.canvas = canvas;
-    this.g2d = canvas.getContext('2d');
+    this.renderer = new THREE.WebGLRenderer({ canvas: gameCanvas });
+    this.canvas = gameCanvas;
+    this.overlayCanvas = overlayCanvas;
   }
 
   /**
@@ -56,7 +60,7 @@ export class Game {
 
       this._currentArea = new Area(this, area);
       this._currentArea.state.onCreate(this._currentArea);
-      this.canvas.focus();
+      this.overlayCanvas.focus();
 
       requestAnimationFrame(this.tick.bind(this));
     }
@@ -102,6 +106,20 @@ export class Game {
   }
 
   /**
+   * Get the absolute width of the overlay canvas in the browser
+   */
+  public get overlayWidth(): number {
+    return this.overlayCanvas.width;
+  }
+
+  /**
+   * Get the absolute height of the overlay canvas in the browser
+   */
+  public get overlayHeight(): number {
+    return this.overlayCanvas.height;
+  }
+
+  /**
    * Run a single game tick in the engine
    */
   private tick(): void {
@@ -125,7 +143,7 @@ export class Game {
     this.currentArea._stepEntities();
 
     // Draw scene
-    this.currentArea._drawScene(this.renderer, this.g2d);
+    this.currentArea._drawScene(this.renderer, this.overlayCanvas);
 
     // Update input
     this.input._clearKeyTick();
