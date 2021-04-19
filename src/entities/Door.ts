@@ -147,7 +147,7 @@ export class Door implements EntityState {
       }
 
       const color = DoorColor[this.doorColor].toLowerCase();
-      hud.state.message = keyAvailable ? `Action: Use ${color} key` : `Need a ${color} key`;
+      hud.state.message = keyAvailable ? `Action: Use ${color} key` : `Needs a ${color} key`;
     }
 
     // Test for the actual action

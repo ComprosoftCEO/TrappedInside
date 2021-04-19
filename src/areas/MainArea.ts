@@ -16,6 +16,9 @@ import { Inventory } from 'resources/Inventory';
 import { Energy } from 'entities/Energy';
 import { Lever } from 'entities/Lever';
 import { Rock } from 'entities/Rock';
+import { Battery } from 'entities/Battery';
+import { ElectricBox } from 'entities/ElectricBox';
+import { ElectricBoxType } from 'entities/ElectricBoxType';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -243,10 +246,19 @@ export class MainArea implements AreaState {
 
           case MazeObject.BlueKey:
             this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Blue));
+
+            break;
+
+          case MazeObject.Battery:
+            this.area.createEntity(new Battery(rowIndex, colIndex));
             break;
 
           case MazeObject.Lever:
             this.area.createEntity(new Lever(rowIndex, colIndex));
+            break;
+
+          case MazeObject.ABox:
+            this.area.createEntity(new ElectricBox(rowIndex, colIndex, ElectricBoxType.A));
             break;
 
           case MazeObject.Drone:

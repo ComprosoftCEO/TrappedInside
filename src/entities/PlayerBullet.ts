@@ -55,12 +55,16 @@ export class PlayerBullet implements EntityState {
    * Destroy a bullet if it hits a wall
    */
   private testForWallCollision() {
-    for (const wall of this.entity.area.findEntities('wall')) {
-      if (this.entity.isCollidingWith(wall)) {
-        this.entity.destroy();
-        return;
-      }
+    if (this.isCollidingWithWalls()) {
+      this.entity.destroy();
     }
+  }
+
+  /**
+   * Test if the entity is colliding with any walls
+   */
+  private isCollidingWithWalls(): boolean {
+    return this.entity.area.findEntities('wall').some((wall) => this.entity.isCollidingWith(wall));
   }
 
   onTimer(_timerIndex: number): void {

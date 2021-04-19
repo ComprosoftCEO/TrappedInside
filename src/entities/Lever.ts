@@ -32,6 +32,8 @@ export class Lever implements EntityState {
     const object = this.entity.area.game.assets.getObject('Lever').clone();
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
     object.scale.set(1.5, 1.5, 1.5);
+    object.castShadow = true;
+    object.children[0].castShadow = true;
     this.entity.object = object;
 
     this.entity.mask = new SphereCollisionMask(object);
@@ -71,7 +73,7 @@ export class Lever implements EntityState {
       hud.state.message = 'Action: Pull Lever';
     }
 
-    // Test if the player has toggled the lever
+    // Test if the player can interact with the lever
     if (!this.leverAction.isRunning()) {
       this.checkInteractionInput();
     }
@@ -82,7 +84,7 @@ export class Lever implements EntityState {
    */
   private checkInteractionInput(): void {
     const input = this.entity.area.game.input;
-    if (input.isKeyStarted(Key.E) && !this.leverAction.isRunning()) {
+    if (input.isKeyStarted(Key.E)) {
       if (this.open) {
         // Reverse animation
         this.leverAction.timeScale = -1;

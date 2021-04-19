@@ -23,7 +23,9 @@ import Door from 'assets/objects/Door.glb';
 import ToggleDoor from 'assets/objects/ToggleDoor.glb';
 import ElectricDoor from 'assets/objects/ElectricDoor.glb';
 import Key from 'assets/objects/Key.glb';
+import Battery from 'assets/objects/Battery.glb';
 import Lever from 'assets/objects/Lever.glb';
+import ElectricBox from 'assets/objects/ElectricBox.glb';
 import Rock from 'assets/objects/Rock.glb';
 import Drone from 'assets/objects/Drone.glb';
 import Gun from 'assets/objects/Gun.glb';
@@ -35,7 +37,7 @@ import YellowKey from 'assets/images/YellowKey.png';
 import GreenKey from 'assets/images/GreenKey.png';
 import BlueKey from 'assets/images/BlueKey.png';
 import Energy from 'assets/images/Energy.png';
-import Battery from 'assets/images/Battery.png';
+import BatteryIcon from 'assets/images/Battery.png';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -115,12 +117,25 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadGLTFFile(Key, (glb, manager) => {
       manager.saveObject('Key', glb.scene.children[0]);
     }),
+    game.assets.loadGLTFFile(Battery, (glb, manager) => {
+      manager.saveObject('Battery', glb.scene.children[0]);
+    }),
     game.assets.loadGLTFFile(Drone, (glb, manager) => {
       const drone = glb.scene.children[0];
       manager.saveObject('Drone', drone);
 
       adjustEmission(drone.children[0] as THREE.Mesh, 0x737373, 0.5);
       adjustEmission(drone.children[2] as THREE.Mesh, 0x2760f2, 0.25);
+    }),
+    game.assets.loadGLTFFile(ElectricBox, (glb, manager) => {
+      const box = glb.scene.children[0];
+      manager.saveObject('ElectricBox', box);
+
+      adjustEmission(box.children[0] as THREE.Mesh, 0x878787, 0.5);
+
+      for (const animation of glb.animations) {
+        manager.saveAnimation(animation.name, animation);
+      }
     }),
     game.assets.loadGLTFFile(Rock, (glb, manager) => {
       manager.saveObject('Rock', glb.scene.children[0]);
@@ -141,7 +156,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('GreenKey', GreenKey),
     game.assets.loadImage('BlueKey', BlueKey),
     game.assets.loadImage('Energy', Energy),
-    game.assets.loadImage('Battery', Battery),
+    game.assets.loadImage('Battery', BatteryIcon),
   ]);
 
   return game;

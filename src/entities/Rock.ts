@@ -29,6 +29,7 @@ export class Rock implements EntityState {
     const object = entity.area.game.assets.getObject('Rock').clone();
     object.scale.set(SCALE_BASE / 2, SCALE_BASE / 2, SCALE_BASE / 2);
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
+    object.castShadow = true;
 
     this.entity.object = object;
     this.entity.mask = new BoxCollisionMask(object);
