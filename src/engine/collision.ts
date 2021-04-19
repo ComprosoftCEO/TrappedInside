@@ -140,7 +140,7 @@ export class SphereCollisionMask implements CollisionMask {
 
     if (sphereObject instanceof THREE.Sphere) {
       this.sphere.copy(sphereObject);
-    } else if (sphereObject instanceof THREE.Mesh) {
+    } else if (sphereObject instanceof THREE.Object3D) {
       this.update(sphereObject);
     }
   }
@@ -180,28 +180,40 @@ export class SphereCollisionMask implements CollisionMask {
   }
 
   update(object: THREE.Object3D): void {
-    this.sphere.set(object.position, 0);
-    this.updateRecursive(object);
+    const boundingSphere = new THREE.Box3().setFromObject(object).getBoundingSphere(new THREE.Sphere());
+    this.sphere.set(boundingSphere.center, boundingSphere.radius);
+
+    // Sadly, the recursive algorithm below does not work because there is some sort of glitch
+    //  with sphere.union(). I have no idea what is causiing this problem in THREE.js
+    //
+    // this.expandByObject(object);
+    // if (this.sphere.radius === 0) {
+    //   this.sphere.radius = boundingSphere.radius;
+    // }
   }
 
   /**
    * Recursively expand the sphere for all geometries in the scene
    */
-  private updateRecursive(object: THREE.Object3D): void {
-    // First compute the current sphere
-    const mesh = object as THREE.Mesh;
-    if (mesh.geometry instanceof THREE.BufferGeometry) {
-      mesh.geometry.computeBoundingSphere();
+  private expandByObject(object: THREE.Object3D): void {
+    // Force the world matrix to update
+    object.updateWorldMatrix(false, false);
 
-      const sphere = mesh.geometry.boundingSphere.clone();
-      mesh.updateMatrix();
-      sphere.applyMatrix4(mesh.matrix);
-      this.sphere.union(sphere);
+    // Expand by the current geometry
+    const geometry = (object as THREE.Mesh).geometry;
+    if (typeof geometry !== 'undefined') {
+      if (geometry.boundingSphere === null) {
+        geometry.computeBoundingSphere();
+      }
+
+      const geometrySphere = geometry.boundingSphere.clone();
+      geometrySphere.applyMatrix4(object.matrixWorld);
+      this.sphere.union(geometrySphere);
     }
 
-    // Compute the sphere for all children
+    // Recursively expand by all children
     for (const child of object.children) {
-      this.updateRecursive(child);
+      this.expandByObject(child);
     }
   }
 
