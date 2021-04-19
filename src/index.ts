@@ -21,6 +21,7 @@ import Wall from 'assets/objects/Wall.glb';
 import Door from 'assets/objects/Door.glb';
 import Key from 'assets/objects/Key.glb';
 import Drone from 'assets/objects/Drone.glb';
+import Gun from 'assets/objects/Gun.glb';
 
 import RedKey from 'assets/images/RedKey.png';
 import YellowKey from 'assets/images/YellowKey.png';
@@ -90,6 +91,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
 
       adjustEmission(drone.children[0] as THREE.Mesh, 0x737373, 0.5);
       adjustEmission(drone.children[2] as THREE.Mesh, 0x2760f2, 0.25);
+    }),
+    game.assets.loadGLTFFile(Gun, (glb, manager) => {
+      manager.saveObject('Gun', glb.scene);
     }),
     game.assets.loadImage('RedKey', RedKey),
     game.assets.loadImage('YellowKey', YellowKey),

@@ -215,6 +215,9 @@ export class HUD implements EntityState {
 
     // And inventory
     this.drawInventory(g2d);
+
+    // Finally, draw a small plus at the center of the screen
+    this.drawTarget(g2d);
   }
 
   /**
@@ -302,6 +305,25 @@ export class HUD implements EntityState {
       g2d.fillText('x1', currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
       currentX += slotSize + spacing;
     }
+  }
+
+  /**
+   * Draw a dot in the center for the gun target
+   */
+  private drawTarget(g2d: CanvasRenderingContext2D): void {
+    const centerX = this.entity.area.overlayWidth / 2;
+    const centerY = this.entity.area.overlayHeight / 2;
+    const length = 5;
+
+    g2d.lineWidth = 1;
+    g2d.strokeStyle = 'white';
+
+    g2d.beginPath();
+    g2d.moveTo(centerX - length, centerY);
+    g2d.lineTo(centerX + length, centerY);
+    g2d.moveTo(centerX, centerY - length);
+    g2d.lineTo(centerX, centerY + length);
+    g2d.stroke();
   }
 
   /**

@@ -1,11 +1,12 @@
 import { Entity, EntityState } from 'engine/entity';
-import { Key } from 'engine/input';
+import { Key, MouseButton } from 'engine/input';
 import { clamp, wrapNumber } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
 import { MainArea } from 'areas/MainArea';
 import { DeathAnimation } from './DeathAnimation';
 import { Health } from 'resources/Health';
+import { PlayerBullet } from './PlayerBullet';
 
 const ROTATION_SPEED = 0.002;
 const MOVEMENT_SPEED = 0.1;
@@ -22,6 +23,7 @@ export class Player implements EntityState {
   private entity: Entity<this>;
   private mask: BoxCollisionMask;
   private camera: THREE.PerspectiveCamera;
+  private gun: THREE.Object3D;
 
   private startRow: number;
   private startCol: number;
@@ -56,6 +58,14 @@ export class Player implements EntityState {
     );
     this.entity.area.camera = this.camera;
     this.entity.object = this.camera;
+
+    // Add a gun to the camera
+    const gun = entity.area.game.assets.getObject('Gun').clone();
+    gun.scale.set(0.1, 0.1, 0.1);
+    gun.position.set(0.15, -0.04, 0.05);
+    gun.rotation.y = Math.atan2(Infinity, 1.8);
+    this.camera.add(gun);
+    this.gun = gun;
 
     // Set the start position in the maze
     const position = (this.entity.area.state as MainArea).tileLocationToPosition(this.startRow, this.startCol);
@@ -129,6 +139,11 @@ export class Player implements EntityState {
     }
 
     this.updatePosition(deltaX, deltaZ);
+
+    if (input.isMouseButtonStarted(MouseButton.Left)) {
+      const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
+      this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));
+    }
   }
 
   /**
