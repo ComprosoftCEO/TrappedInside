@@ -3,6 +3,8 @@ import { Entity, EntityState } from 'engine/entity';
 import { DoorColor } from './DoorColor';
 import { SphereCollisionMask } from 'engine/collision';
 import { randomFloat } from 'engine/helpers';
+import { Inventory } from 'resources/Inventory';
+import { MazeObject } from 'areas/MazeObject';
 import * as THREE from 'three';
 
 const KEY_COLOR_MATERIALS: Record<DoorColor, THREE.Material> = {
@@ -51,11 +53,25 @@ export class Key implements EntityState {
     this.entity.mask = new SphereCollisionMask(this.entity.object);
   }
 
-  onDestroy(): void {}
+  onDestroy(): void {
+    // Remove the key from the maze
+    const mainArea = this.entity.area.state as MainArea;
+    mainArea.maze[this.row][this.column] = MazeObject.Empty;
+
+    // Update the inventory
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    inventory.collectKey(this.color);
+  }
 
   onStep(): void {
     // Spin to make the key more noticable
     this.entity.object.rotateY(Math.PI / 256);
+
+    // Test for player collision to collect the key
+    const player = this.entity.area.findFirstEntity('player');
+    if (player !== null && this.entity.isCollidingWith(player)) {
+      this.entity.destroy();
+    }
   }
 
   onTimer(_timerIndex: number): void {}

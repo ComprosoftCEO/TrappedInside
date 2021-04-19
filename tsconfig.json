@@ -24,6 +24,9 @@
       ],
       "entities/*": [
         "src/entities/*"
+      ],
+      "resources/*": [
+        "src/resources/*"
       ]
     }
   }

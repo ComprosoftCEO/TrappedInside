@@ -26,6 +26,8 @@ import RedKey from 'assets/images/RedKey.png';
 import YellowKey from 'assets/images/YellowKey.png';
 import GreenKey from 'assets/images/GreenKey.png';
 import BlueKey from 'assets/images/BlueKey.png';
+import Energy from 'assets/images/Energy.png';
+import Battery from 'assets/images/Battery.png';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -93,6 +95,8 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('YellowKey', YellowKey),
     game.assets.loadImage('GreenKey', GreenKey),
     game.assets.loadImage('BlueKey', BlueKey),
+    game.assets.loadImage('Energy', Energy),
+    game.assets.loadImage('Battery', Battery),
   ]);
 
   return game;

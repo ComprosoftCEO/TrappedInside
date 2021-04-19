@@ -3,6 +3,9 @@ import { MazeObject } from 'areas/MazeObject';
 import { Entity, EntityState } from 'engine/entity';
 import { clamp } from 'engine/helpers';
 import { Key } from 'engine/input';
+import { Health } from 'resources/Health';
+import { Inventory } from 'resources/Inventory';
+import { DoorColor } from './DoorColor';
 import * as THREE from 'three';
 
 // Map drawing flags
@@ -36,6 +39,7 @@ type DrawFunction = (
 
 const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.Wall]: mapDrawWall,
+  [MazeObject.Energy]: mapDrawIcon('Energy'),
   [MazeObject.RedKey]: mapDrawIcon('RedKey'),
   [MazeObject.YellowKey]: mapDrawIcon('YellowKey'),
   [MazeObject.GreenKey]: mapDrawIcon('GreenKey'),
@@ -44,6 +48,13 @@ const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.YellowDoor]: mapDrawDoor('yellow'),
   [MazeObject.GreenDoor]: mapDrawDoor('green'),
   [MazeObject.BlueDoor]: mapDrawDoor('blue'),
+};
+
+const KEY_COLOR_ICON: Record<DoorColor, string> = {
+  [DoorColor.Red]: 'RedKey',
+  [DoorColor.Yellow]: 'YellowKey',
+  [DoorColor.Green]: 'GreenKey',
+  [DoorColor.Blue]: 'BlueKey',
 };
 
 /**
@@ -187,9 +198,10 @@ export class HUD implements EntityState {
     g2d.fillText('Health:', HUD_LEFT, HUD_TOP);
 
     // Draw the "health bar"
+    const health = this.entity.area.game.resources.getResource<Health>('health');
     drawHealthBar(
       g2d,
-      0.75,
+      health.getHealthPercentLeft(),
       HUD_LEFT + g2d.measureText('Health:').width + 10,
       HUD_TOP,
       100, // Width
@@ -200,6 +212,9 @@ export class HUD implements EntityState {
 
     // Draw the minimap
     this.drawMapSubset(g2d);
+
+    // And inventory
+    this.drawInventory(g2d);
   }
 
   /**
@@ -241,6 +256,52 @@ export class HUD implements EntityState {
     g2d.fillText('S', leftValueX + imageSize / 2, HUD_TOP + imageSize - compassMargin);
     g2d.fillText('W', leftValueX + compassMargin, HUD_TOP + imageSize / 2);
     g2d.fillText('E', leftValueX + imageSize - compassMargin, HUD_TOP + imageSize / 2);
+  }
+
+  /**
+   * Draw the collected inventory items
+   */
+  private drawInventory(g2d: CanvasRenderingContext2D): void {
+    const mainArea = this.entity.area.state as MainArea;
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    const assets = this.entity.area.game.assets;
+
+    const slotSize = 32;
+    const spacing = slotSize / 4;
+
+    // Always draw the energy left
+    g2d.drawImage(assets.getImage('Energy'), HUD_LEFT, HUD_TOP + 30, slotSize, slotSize);
+    g2d.font = '10pt sans-serif';
+    g2d.fillStyle = 'white';
+    g2d.textAlign = 'center';
+    g2d.textBaseline = 'top';
+    g2d.fillText(
+      `${mainArea.totalEnergy - mainArea.energyLeft} / ${mainArea.totalEnergy}`,
+      HUD_LEFT + slotSize / 2,
+      HUD_TOP + 30 + slotSize,
+    );
+
+    let currentX = HUD_LEFT + slotSize + spacing;
+
+    // Do all of the keys
+    for (const keyColor of [DoorColor.Red, DoorColor.Yellow, DoorColor.Green, DoorColor.Blue]) {
+      if (!inventory.hasKeyAvailable(keyColor)) {
+        continue;
+      }
+
+      const icon = assets.getImage(KEY_COLOR_ICON[keyColor]);
+      g2d.drawImage(icon, currentX, HUD_TOP + 30, slotSize, slotSize);
+      g2d.fillText(`x${inventory.getKeyCount(keyColor)}`, currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
+      currentX += slotSize + spacing;
+    }
+
+    // Also do the battery
+    if (inventory.hasCollectedBattery()) {
+      const icon = assets.getImage('Battery');
+      g2d.drawImage(icon, currentX, HUD_TOP + 30, slotSize, slotSize);
+      g2d.fillText('x1', currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
+      currentX += slotSize + spacing;
+    }
   }
 
   /**

@@ -32,7 +32,7 @@ export class MazeWalls implements EntityState {
     // Create instances for all walls
     this.walls = new THREE.InstancedMesh(BOX_GEOMETRY, BOX_MATERIAL, numWalls);
     this.walls.castShadow = true;
-    this.walls.receiveShadow = true;
+    this.walls.receiveShadow = false;
   }
 
   /**

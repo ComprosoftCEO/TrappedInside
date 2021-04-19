@@ -2,12 +2,14 @@ import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { Drone } from './Drone';
 import * as THREE from 'three';
-
-const BULLET_MESH = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
-BULLET_MESH.scale.set(0.15, 0.15, 0.15);
+import { Health } from 'resources/Health';
 
 const MOVEMENT_SPEED = 0.5;
 const DESTROY_TICKS = 250;
+const DAMAGE = 1;
+
+const BULLET_MESH = new THREE.Mesh(new THREE.SphereGeometry(), new THREE.MeshBasicMaterial({ color: 0xffaa00 }));
+BULLET_MESH.scale.set(0.15, 0.15, 0.15);
 
 /**
  * Bullet that is shot from a drone
@@ -47,7 +49,21 @@ export class DroneBullet implements EntityState {
     this.entity.object.translateX(MOVEMENT_SPEED);
 
     this.entity.mask.update(this.entity.object);
+    this.testForPlayerCollision();
     this.testForWallCollision();
+  }
+
+  private testForPlayerCollision() {
+    const player = this.entity.area.findFirstEntity('player');
+    if (player === null) {
+      return;
+    }
+
+    if (this.entity.isCollidingWith(player)) {
+      const health = this.entity.area.game.resources.getResource<Health>('health');
+      health.hit(DAMAGE);
+      this.entity.destroy();
+    }
   }
 
   private testForWallCollision() {

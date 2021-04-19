@@ -11,6 +11,9 @@ import { Drone } from 'entities/Drone';
 import { MazeObject, stringToMaze } from './MazeObject';
 import * as THREE from 'three';
 import { HUD } from 'entities/HUD';
+import { Health } from 'resources/Health';
+import { Inventory } from 'resources/Inventory';
+import { Energy } from 'entities/Energy';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -25,6 +28,7 @@ export class MainArea implements AreaState {
   private area: Area<this>;
 
   public readonly maze: MazeObject[][];
+  private _totalEnergy: number;
 
   // Manage the sunlight
   private light: THREE.DirectionalLight;
@@ -91,6 +95,20 @@ export class MainArea implements AreaState {
     return this.playerAngle;
   }
 
+  /**
+   * Get the total number of energy balls in the maze
+   */
+  public get totalEnergy(): number {
+    return this._totalEnergy;
+  }
+
+  /**
+   * Get the number of energy balls left
+   */
+  public get energyLeft(): number {
+    return this.area.findEntities('energy').length;
+  }
+
   onCreate(area: Area<this>): void {
     this.area = area;
 
@@ -119,6 +137,11 @@ export class MainArea implements AreaState {
     //   this.area.scene.add(this.area.game.assets.getObject('Grass').clone());
     // }
 
+    // Configure game resources
+    this.area.game.resources.setResource('health', new Health());
+    this.area.game.resources.setResource('inventory', new Inventory());
+
+    // Build the room
     this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
     this.buildMaze();
 
@@ -165,6 +188,7 @@ export class MainArea implements AreaState {
     const wallEntity = this.area.createEntity(new MazeWalls(numWalls, this.area));
 
     // Create all of the instances in the maze
+    let totalEnergy = 0;
     for (const [rowIndex, row] of this.maze.entries()) {
       for (const [colIndex, col] of row.entries()) {
         switch (col) {
@@ -176,6 +200,11 @@ export class MainArea implements AreaState {
             if (playerPosition === null) {
               playerPosition = [rowIndex, colIndex];
             }
+            break;
+
+          case MazeObject.Energy:
+            totalEnergy += 1;
+            this.area.createEntity(new Energy(rowIndex, colIndex));
             break;
 
           case MazeObject.RedDoor:
@@ -217,6 +246,8 @@ export class MainArea implements AreaState {
       }
     }
 
+    this._totalEnergy = totalEnergy;
+
     // Create the player, choose center of maze as default position
     if (playerPosition === null) {
       playerPosition = [Math.floor(this.mazeWidth / 2), Math.floor(this.mazeHeight / 2)];
@@ -228,7 +259,7 @@ export class MainArea implements AreaState {
   onTimer(timerIndex: number): void {
     if (timerIndex === 0) {
       this.lightAngle += Math.PI / 64;
-      this.lightAngle %= 2 * Math.PI;
+      this.lightAngle %= Math.PI; // Don't have a night
       this.updateLightAngle();
     }
   }
@@ -240,7 +271,6 @@ export class MainArea implements AreaState {
     this.light.position.x = 0;
     this.light.position.y = this.lightDistance * Math.sin(this.lightAngle);
     this.light.position.z = -this.lightDistance * Math.cos(this.lightAngle);
-    this.light.visible = this.lightAngle <= Math.PI;
   }
 
   onStep(): void {

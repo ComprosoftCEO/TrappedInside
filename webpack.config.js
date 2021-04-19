@@ -65,6 +65,7 @@ module.exports = {
       engine: path.resolve(__dirname, 'src/engine'),
       areas: path.resolve(__dirname, 'src/areas'),
       entities: path.resolve(__dirname, 'src/entities'),
+      resources: path.resolve(__dirname, 'src/resources'),
       assets: path.resolve(__dirname, 'assets/'),
     },
   },
