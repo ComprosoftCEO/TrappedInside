@@ -11,7 +11,7 @@ export class Inventory {
     [DoorColor.Blue]: 0,
   };
 
-  private batteryCollected = true;
+  private batteryCollected = false;
 
   public collectKey(color: DoorColor): void {
     this.keysCollected[color] += 1;

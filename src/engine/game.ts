@@ -86,7 +86,7 @@ export class Game {
    * @param nextArea Next area to display
    */
   public setArea(nextArea: AreaState): void {
-    if (this.nextArea !== null) {
+    if (this.nextArea === null) {
       this.nextArea = nextArea;
     }
   }

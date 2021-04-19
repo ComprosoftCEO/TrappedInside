@@ -4,6 +4,8 @@ import { clamp, wrapNumber } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
 import { MainArea } from 'areas/MainArea';
+import { DeathAnimation } from './DeathAnimation';
+import { Health } from 'resources/Health';
 
 const ROTATION_SPEED = 0.002;
 const MOVEMENT_SPEED = 0.1;
@@ -66,14 +68,33 @@ export class Player implements EntityState {
     this.mask.box.translate(position);
   }
 
-  onDestroy(): void {}
+  onDestroy(): void {
+    // Destroy the HUD
+    for (const hud of this.entity.area.findEntities('overlay')) {
+      hud.destroy();
+    }
+
+    // Prepare the death animation
+    this.entity.area.createEntity(new DeathAnimation());
+  }
 
   onStep(): void {
-    const input = this.entity.area.game.input;
-
     // Make sure the camera is scaled properly
     this.camera.aspect = this.entity.area.game.canvasWidth / this.entity.area.game.canvasHeight;
     this.camera.updateProjectionMatrix();
+
+    // Move the player
+    this.handleInput();
+
+    // Test for death
+    this.testForDeath();
+  }
+
+  /**
+   * Handle all input to move the player
+   */
+  private handleInput(): void {
+    const input = this.entity.area.game.input;
 
     // Test for camera spin
     const mouseX = input.getMouseMovementX();
@@ -156,6 +177,16 @@ export class Player implements EntityState {
    */
   private isCollidingWithWalls(): boolean {
     return this.entity.area.findEntities('wall').some((wall) => this.entity.isCollidingWith(wall));
+  }
+
+  /**
+   * Test if the player has died and handle it!
+   */
+  private testForDeath(): void {
+    const health = this.entity.area.game.resources.getResource<Health>('health');
+    if (!health.hasHealthLeft()) {
+      this.entity.destroy();
+    }
   }
 
   onTimer(_timerIndex: number): void {}

@@ -3,6 +3,7 @@ import { Entity, EntityState } from 'engine/entity';
 import { Drone } from './Drone';
 import * as THREE from 'three';
 import { Health } from 'resources/Health';
+import { HitAnimation } from './HitAnimation';
 
 const MOVEMENT_SPEED = 0.5;
 const DESTROY_TICKS = 250;
@@ -53,6 +54,9 @@ export class DroneBullet implements EntityState {
     this.testForWallCollision();
   }
 
+  /**
+   * Handle player collision for health
+   */
   private testForPlayerCollision() {
     const player = this.entity.area.findFirstEntity('player');
     if (player === null) {
@@ -62,10 +66,14 @@ export class DroneBullet implements EntityState {
     if (this.entity.isCollidingWith(player)) {
       const health = this.entity.area.game.resources.getResource<Health>('health');
       health.hit(DAMAGE);
+      this.entity.area.createEntity(new HitAnimation());
       this.entity.destroy();
     }
   }
 
+  /**
+   * Destroy a bullet if it hits a wall
+   */
   private testForWallCollision() {
     for (const wall of this.entity.area.findEntities('wall')) {
       if (this.entity.isCollidingWith(wall)) {
