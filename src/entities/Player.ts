@@ -191,7 +191,10 @@ export class Player implements EntityState {
    * Test if the player is currently colliding with any walls
    */
   private isCollidingWithWalls(): boolean {
-    return this.entity.area.findEntities('wall').some((wall) => this.entity.isCollidingWith(wall));
+    return (
+      this.entity.area.findEntities('wall').some((wall) => this.entity.isCollidingWith(wall)) ||
+      this.entity.area.findEntities('rock').some((rock) => this.entity.isCollidingWith(rock))
+    );
   }
 
   /**

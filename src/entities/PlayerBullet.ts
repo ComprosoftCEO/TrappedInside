@@ -12,7 +12,7 @@ BULLET_MESH.scale.set(0.1, 2, 0.1);
  * Bullet that is shot from the player object
  */
 export class PlayerBullet implements EntityState {
-  public readonly tags: string[] = ['bullet'];
+  public readonly tags: string[] = ['player-bullet'];
 
   private entity: Entity<this>;
   private position: THREE.Vector3;

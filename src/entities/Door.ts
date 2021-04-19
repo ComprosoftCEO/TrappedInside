@@ -1,4 +1,4 @@
-import { MainArea } from 'areas/MainArea';
+import { MainArea, SCALE_BASE } from 'areas/MainArea';
 import { BoxCollisionMask, GroupCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { Key } from 'engine/input';
@@ -55,8 +55,8 @@ export class Door implements EntityState {
 
     // Put object in the correct location
     const object = entity.area.game.assets.getObject('Door').clone();
-    object.scale.y = 2.5;
-    object.scale.z = 2.5;
+    object.scale.y = SCALE_BASE / 2;
+    object.scale.z = SCALE_BASE / 2;
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
 
     // Doors in even-numbered rows are horizontal (default)

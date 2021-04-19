@@ -334,7 +334,6 @@ export class InputManager {
   private mouseDown: Set<MouseButton> = new Set();
   private mouseReleased: Set<MouseButton> = new Set();
   private _pointerLockEnabled = false;
-  private pointerLockClicked = false;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -562,7 +561,7 @@ export class InputManager {
    */
   private onMouseMove(event: MouseEvent) {
     this.mouseCoords = [event.clientX, event.clientY];
-    if (document.pointerLockElement === this.canvas && this.pointerLockClicked) {
+    if (document.pointerLockElement === this.canvas) {
       this.mouseMovement = [event.movementX, event.movementY];
     } else {
       this.mouseMovement = [0, 0];
@@ -605,7 +604,9 @@ export class InputManager {
    * Called whenever the pointer lock is changed
    */
   private onPointerLockChange(_event: Event) {
-    this.pointerLockClicked = document.pointerLockElement === this.canvas;
+    if (document.pointerLockElement !== this.canvas) {
+      this.mouseMovement = [0, 0];
+    }
   }
 
   /**
@@ -620,6 +621,7 @@ export class InputManager {
   _clearMouseTick(): void {
     this.mouseStart.clear();
     this.mouseReleased.clear();
+    this.mouseMovement = [0, 0];
   }
 
   /**

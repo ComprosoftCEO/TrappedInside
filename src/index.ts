@@ -3,7 +3,7 @@ import { Game } from 'engine/game';
 import * as THREE from 'three';
 import './styles.css';
 
-// Assets
+// Textures
 import SkyboxPosX from 'assets/skybox/posx.jpg';
 import SkyboxNegX from 'assets/skybox/negx.jpg';
 import SkyboxPosY from 'assets/skybox/posy.jpg';
@@ -17,15 +17,19 @@ import BrickColor from 'assets/textures/brick-color.jpg';
 import BrickNrm from 'assets/textures/brick-normal.jpg';
 import BrickOcc from 'assets/textures/brick-occ.jpg';
 
+// Objects
 import Wall from 'assets/objects/Wall.glb';
 import Door from 'assets/objects/Door.glb';
 import ToggleDoor from 'assets/objects/ToggleDoor.glb';
 import ElectricDoor from 'assets/objects/ElectricDoor.glb';
 import Key from 'assets/objects/Key.glb';
 import Lever from 'assets/objects/Lever.glb';
+import Rock from 'assets/objects/Rock.glb';
 import Drone from 'assets/objects/Drone.glb';
 import Gun from 'assets/objects/Gun.glb';
+import Explosion from 'assets/objects/Explosion.glb';
 
+// Images
 import RedKey from 'assets/images/RedKey.png';
 import YellowKey from 'assets/images/YellowKey.png';
 import GreenKey from 'assets/images/GreenKey.png';
@@ -118,8 +122,19 @@ async function loadAllAssets(game: Game): Promise<Game> {
       adjustEmission(drone.children[0] as THREE.Mesh, 0x737373, 0.5);
       adjustEmission(drone.children[2] as THREE.Mesh, 0x2760f2, 0.25);
     }),
+    game.assets.loadGLTFFile(Rock, (glb, manager) => {
+      manager.saveObject('Rock', glb.scene.children[0]);
+    }),
     game.assets.loadGLTFFile(Gun, (glb, manager) => {
       manager.saveObject('Gun', glb.scene);
+    }),
+    game.assets.loadGLTFFile(Explosion, (glb, manager) => {
+      const explosion = glb.scene.children[0] as THREE.Mesh;
+      manager.saveObject('Explosion', explosion);
+
+      const material = explosion.material as THREE.MeshStandardMaterial;
+      material.transparent = true;
+      material.opacity = 0.75;
     }),
     game.assets.loadImage('RedKey', RedKey),
     game.assets.loadImage('YellowKey', YellowKey),

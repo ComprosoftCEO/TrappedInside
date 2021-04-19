@@ -4,8 +4,10 @@ import { Entity, EntityState } from 'engine/entity';
 import { isAngleBetween, isBasicallyInteger, pickRandomArray } from 'engine/helpers';
 import { MazeObject } from 'areas/MazeObject';
 import { DroneBullet } from 'entities/DroneBullet';
+import { Explosion } from './Explosion';
 import * as THREE from 'three';
 
+const HEALTH = 60;
 const MAX_RANGE = 40;
 const MOVEMENT_SPEED = 0.1;
 const ROTATION_SPEED = Math.PI / 64;
@@ -72,6 +74,8 @@ export class Drone implements EntityState {
   private rotDir = ROTATION_SPEED; // Direction of rotation
   private angle = 0;
 
+  private health = HEALTH;
+
   /**
    * Create a drone at a given position inside the maze
    */
@@ -91,7 +95,8 @@ export class Drone implements EntityState {
     this.entity.object = object;
 
     // Collision Mask
-    this.entity.mask = new BoxCollisionMask(object);
+    this.entity.mask = new BoxCollisionMask(object.children[4]);
+    this.entity.mask.showMask = true;
 
     this.entity.setTimer(0, 10, true);
     this.pickNewDirection();
@@ -100,7 +105,7 @@ export class Drone implements EntityState {
   onDestroy(): void {}
 
   onStep(): void {
-    this.entity.mask.update(this.entity.object);
+    this.entity.mask.update(this.entity.object.children[4]);
     this.updateMazePosition();
 
     if (this.canSeePlayer()) {
@@ -108,6 +113,9 @@ export class Drone implements EntityState {
     } else {
       this.moveDrone();
     }
+
+    this.checkForBulletCollision();
+    this.checkHealth();
   }
 
   /**
@@ -252,6 +260,30 @@ export class Drone implements EntityState {
     // When to rotate clockwise versus counter-clockwise
     this.rotDir = DIRECTION_DATA[currentDir].reverse === newDir ? -ROTATION_SPEED : ROTATION_SPEED;
     this.dir = newDir;
+  }
+
+  /**
+   * Check for collisions with any of the player bullets
+   */
+  private checkForBulletCollision(): void {
+    for (const bullet of this.entity.area.findEntities('player-bullet')) {
+      if (this.entity.isCollidingWith(bullet)) {
+        bullet.destroy();
+        this.health -= 1;
+      }
+    }
+  }
+
+  /**
+   * Check if the health has destroyed the rock
+   */
+  private checkHealth(): void {
+    if (this.health <= 0) {
+      this.entity.destroy();
+
+      // Spawn the explosion
+      this.entity.area.createEntity(new Explosion(this.entity.object.position, 2));
+    }
   }
 
   onTimer(timerIndex: number): void {

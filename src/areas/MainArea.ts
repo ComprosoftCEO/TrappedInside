@@ -15,6 +15,7 @@ import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
 import { Energy } from 'entities/Energy';
 import { Lever } from 'entities/Lever';
+import { Rock } from 'entities/Rock';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -201,6 +202,10 @@ export class MainArea implements AreaState {
             if (playerPosition === null) {
               playerPosition = [rowIndex, colIndex];
             }
+            break;
+
+          case MazeObject.Rock:
+            this.area.createEntity(new Rock(rowIndex, colIndex));
             break;
 
           case MazeObject.Energy:
