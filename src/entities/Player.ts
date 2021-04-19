@@ -80,7 +80,7 @@ export class Player implements EntityState {
 
   onDestroy(): void {
     // Destroy the HUD
-    for (const hud of this.entity.area.findEntities('overlay')) {
+    for (const hud of this.entity.area.findEntities('hud')) {
       hud.destroy();
     }
 

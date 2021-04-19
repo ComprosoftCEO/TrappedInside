@@ -138,6 +138,7 @@ export class Entity<State extends EntityState = EntityState> {
    */
   _destroy(): void {
     this.state.onDestroy();
+    this.mask.showMask = false; /* Clean up mask resources */
 
     if (this._object !== null) {
       this.area.scene.remove(this._object);

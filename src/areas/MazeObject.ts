@@ -11,6 +11,7 @@ export enum MazeObject {
   YellowKey,
   GreenKey,
   BlueKey,
+  Lever,
   Drone,
 }
 
@@ -27,6 +28,7 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   ['y']: MazeObject.YellowKey,
   ['g']: MazeObject.GreenKey,
   ['b']: MazeObject.BlueKey,
+  ['l']: MazeObject.Lever,
   ['d']: MazeObject.Drone,
 };
 

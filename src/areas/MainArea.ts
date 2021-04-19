@@ -14,6 +14,7 @@ import { HUD } from 'entities/HUD';
 import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
 import { Energy } from 'entities/Energy';
+import { Lever } from 'entities/Lever';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -237,6 +238,10 @@ export class MainArea implements AreaState {
 
           case MazeObject.BlueKey:
             this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Blue));
+            break;
+
+          case MazeObject.Lever:
+            this.area.createEntity(new Lever(rowIndex, colIndex));
             break;
 
           case MazeObject.Drone:

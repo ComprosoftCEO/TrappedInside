@@ -19,7 +19,10 @@ import BrickOcc from 'assets/textures/brick-occ.jpg';
 
 import Wall from 'assets/objects/Wall.glb';
 import Door from 'assets/objects/Door.glb';
+import ToggleDoor from 'assets/objects/ToggleDoor.glb';
+import ElectricDoor from 'assets/objects/ElectricDoor.glb';
 import Key from 'assets/objects/Key.glb';
+import Lever from 'assets/objects/Lever.glb';
 import Drone from 'assets/objects/Drone.glb';
 import Gun from 'assets/objects/Gun.glb';
 
@@ -81,6 +84,29 @@ async function loadAllAssets(game: Game): Promise<Game> {
       adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
       adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
       adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+    }),
+    game.assets.loadGLTFFile(ToggleDoor, (glb, manager) => {
+      manager.saveObject('ToggleDoor', glb.scene);
+
+      // Fix the material
+      adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
+      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+    }),
+    game.assets.loadGLTFFile(ElectricDoor, (glb, manager) => {
+      manager.saveObject('ElectricDoor', glb.scene);
+
+      // Fix the material
+      adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
+      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+    }),
+    game.assets.loadGLTFFile(Lever, (glb, manager) => {
+      manager.saveObject('Lever', glb.scene.children[0]);
+
+      for (const animation of glb.animations) {
+        manager.saveAnimation(animation.name, animation);
+      }
     }),
     game.assets.loadGLTFFile(Key, (glb, manager) => {
       manager.saveObject('Key', glb.scene.children[0]);

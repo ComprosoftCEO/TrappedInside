@@ -18,6 +18,7 @@ const MAP_TILES_VISIT = 3; /* Player uncovers nxn tiles */
 const HUD_LEFT = 10;
 const HUD_TOP = 10;
 const HUD_RIGHT = 10;
+const HUD_BOTTOM = 20;
 const MAP_MARGIN = 15;
 
 // Colors
@@ -61,7 +62,7 @@ const KEY_COLOR_ICON: Record<DoorColor, string> = {
  * Draw the heads-up display
  */
 export class HUD implements EntityState {
-  public readonly tags: string[] = ['overlay'];
+  public readonly tags: string[] = ['hud'];
 
   private entity: Entity<this>;
 
@@ -69,6 +70,9 @@ export class HUD implements EntityState {
   private mapCanvas: HTMLCanvasElement;
   private mapVisited: boolean[][];
   private shouldDrawMap = false;
+
+  // Message to show during a frame
+  public message = '';
 
   constructor() {
     this.mapCanvas = document.createElement('canvas');
@@ -184,6 +188,9 @@ export class HUD implements EntityState {
     } else {
       this.drawHUD(g2d);
     }
+
+    // Clear any messages every frame
+    this.message = '';
   }
 
   /**
@@ -216,7 +223,10 @@ export class HUD implements EntityState {
     // And inventory
     this.drawInventory(g2d);
 
-    // Finally, draw a small plus at the center of the screen
+    // Message along the bottom of the screen
+    this.drawMessage(g2d);
+
+    // Draw a small plus at the center of the screen
     this.drawTarget(g2d);
   }
 
@@ -305,6 +315,39 @@ export class HUD implements EntityState {
       g2d.fillText('x1', currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
       currentX += slotSize + spacing;
     }
+  }
+
+  /**
+   * Draw the message along the bottom of the screen
+   */
+  private drawMessage(g2d: CanvasRenderingContext2D): void {
+    if (this.message.length <= 0) {
+      return;
+    }
+
+    g2d.font = '24pt sans-serif';
+    g2d.textAlign = 'center';
+    g2d.textBaseline = 'bottom';
+
+    const metrics = g2d.measureText(this.message);
+    const margin = 10;
+    const width = metrics.width + margin;
+    const height = metrics.actualBoundingBoxAscent - metrics.fontBoundingBoxDescent + margin;
+
+    const centerX = this.entity.area.overlayWidth / 2;
+    const centerY = this.entity.area.overlayHeight - HUD_BOTTOM;
+
+    g2d.fillStyle = 'black';
+    g2d.fillRect(centerX - width / 2, centerY - height, width, height);
+
+    g2d.lineWidth = 2;
+    g2d.strokeStyle = 'orange';
+    g2d.beginPath();
+    g2d.rect(centerX - width / 2, centerY - height, width, height);
+    g2d.stroke();
+
+    g2d.fillStyle = 'white';
+    g2d.fillText(this.message, centerX, centerY);
   }
 
   /**

@@ -1,8 +1,10 @@
 import { MainArea } from 'areas/MainArea';
-import { BoxCollisionMask, GroupCollisionMask } from 'engine/collision';
+import { BoxCollisionMask, GroupCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { Key } from 'engine/input';
 import { DoorColor } from './DoorColor';
+import { HUD } from './HUD';
+import { Inventory } from 'resources/Inventory';
 import * as THREE from 'three';
 
 const DOOR_COLOR_MATERIALS: Record<DoorColor, THREE.Material> = {
@@ -21,8 +23,11 @@ export class Door implements EntityState {
   public readonly doorColor: DoorColor;
 
   private entity: Entity<this>;
+  private interactMask: SphereCollisionMask;
+
   private row: number;
   private column: number;
+  private open = false;
 
   // Store references to the mesh objects and collision mask components
   private leftDoor: THREE.Mesh;
@@ -83,6 +88,8 @@ export class Door implements EntityState {
     this.rightDoorMask = new BoxCollisionMask(this.rightDoor);
 
     this.entity.mask = new GroupCollisionMask(this.leftDoorMask, this.rightDoorMask);
+    this.interactMask = new SphereCollisionMask(object);
+    // this.interactMask.sphere.radius *= 0.65;
 
     // Load animations
     this.mixer = new THREE.AnimationMixer(object);
@@ -114,7 +121,43 @@ export class Door implements EntityState {
     this.leftDoorMask.update(this.leftDoor);
     this.rightDoorMask.update(this.rightDoor);
 
-    if (this.entity.area.game.input.isKeyStarted(Key.O)) {
+    this.testForPlayerInteraction();
+  }
+
+  /**
+   * See if the player is colliding so it can handle user interaction
+   */
+  private testForPlayerInteraction(): void {
+    if (this.open) {
+      return; // No more need to check
+    }
+
+    const player = this.entity.area.findFirstEntity('player');
+    if (player === null || !this.interactMask.isCollidingWith(player.mask)) {
+      return;
+    }
+
+    // Show HUD message
+    const hud = this.entity.area.findFirstEntity('hud') as Entity<HUD>;
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    const keyAvailable = inventory.hasKeyAvailable(this.doorColor);
+    if (hud !== null) {
+      if (hud.state.message.length > 0) {
+        return;
+      }
+
+      const color = DoorColor[this.doorColor].toLowerCase();
+      hud.state.message = keyAvailable ? `Action: Use ${color} key` : `Need a ${color} key`;
+    }
+
+    // Test for the actual action
+    const input = this.entity.area.game.input;
+    if (input.isKeyStarted(Key.E) && keyAvailable) {
+      // Use the key
+      inventory.useKey(this.doorColor);
+      this.open = true;
+
+      // Play the animation
       this.leftDoorAction.play();
       this.rightDoorAction.play();
       this.keyHoleAction.play();
