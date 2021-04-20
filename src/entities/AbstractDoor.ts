@@ -1,25 +1,21 @@
 import { MainArea, SCALE_BASE } from 'areas/MainArea';
-import { BoxCollisionMask, GroupCollisionMask, SphereCollisionMask } from 'engine/collision';
+import { BoxCollisionMask, GroupCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { Key } from 'engine/input';
-import { DoorColor } from './DoorColor';
-import { HUD } from './HUD';
-import { Inventory } from 'resources/Inventory';
 import * as THREE from 'three';
-import { DoorState } from 'resources/DoorState';
 
 /**
- * Door object in the maze
+ * Handles any generic type of door in the maze.
+ * This is helpful because all doors use the same opening, closing, and collision mask behavior.
  */
 export abstract class AbstractDoor {
-  private entity: Entity<EntityState>;
+  protected entity: Entity<EntityState>;
 
   protected row: number;
   protected column: number;
   protected open = false;
 
   // Store references to the mesh objects and collision mask components
-  private doorObject: THREE.Object3D;
+  private doorObject: string;
   private leftDoor: THREE.Mesh;
   private leftDoorMask: BoxCollisionMask;
   private rightDoor: THREE.Mesh;
@@ -31,24 +27,23 @@ export abstract class AbstractDoor {
   private rightDoorAction: THREE.AnimationAction;
   private keyHoleAction: THREE.AnimationAction;
 
-  /**
-   * Spawn a wall in a tile inside the maze
-   */
-  constructor(row: number, column: number, doorObject: THREE.Object3D) {
+  constructor(row: number, column: number, doorObject: string) {
     this.row = row;
     this.column = column;
     this.doorObject = doorObject;
   }
 
   /// Handles on create method for specific doors
-  abstract onCreateDoor(): void;
+  protected abstract onCreateDoor(): void;
 
   /// Handles on step method for specific doors
-  abstract onStepDoor(): void;
+  protected abstract onStepDoor(): void;
 
   onCreate(entity: Entity<EntityState>): void {
+    this.entity = entity;
+
     // Put object in the correct location
-    const object = this.doorObject;
+    const object = entity.area.game.assets.getObject(this.doorObject).clone();
     object.scale.y = SCALE_BASE / 2;
     object.scale.z = SCALE_BASE / 2;
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
@@ -87,6 +82,9 @@ export abstract class AbstractDoor {
     AbstractDoor.configureAnimation(this.leftDoorAction);
     AbstractDoor.configureAnimation(this.rightDoorAction);
     AbstractDoor.configureAnimation(this.keyHoleAction);
+
+    // Call the subclass "onCreate" method
+    this.onCreateDoor();
   }
 
   private static configureAnimation(action: THREE.AnimationAction): void {
@@ -106,6 +104,7 @@ export abstract class AbstractDoor {
       this.rightDoorMask.update(this.rightDoor);
     }
 
+    // Call the subclass "onStep" method
     this.onStepDoor();
   }
 

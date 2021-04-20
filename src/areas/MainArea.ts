@@ -4,12 +4,11 @@ import { Player } from 'entities/Player';
 import TestMaze from 'assets/levels/TestMaze.lvl';
 import { MazeWalls } from 'entities/MazeWalls';
 import { MazeFloor } from 'entities/MazeFloor';
-import { Door } from 'entities/Door';
+import { ColorDoor } from 'entities/ColorDoor';
 import { DoorColor } from 'entities/DoorColor';
 import { Key } from 'entities/Key';
 import { Drone } from 'entities/Drone';
 import { MazeObject, stringToMaze } from './MazeObject';
-import * as THREE from 'three';
 import { HUD } from 'entities/HUD';
 import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
@@ -21,6 +20,8 @@ import { ElectricBox } from 'entities/ElectricBox';
 import { ElectricBoxType } from 'entities/ElectricBoxType';
 import { DoorState } from 'resources/DoorState';
 import { ToggleDoor } from 'entities/ToggleDoor';
+import { ElectricDoor } from 'entities/ElectricDoor';
+import * as THREE from 'three';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -220,19 +221,19 @@ export class MainArea implements AreaState {
             break;
 
           case MazeObject.RedDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Red));
+            this.area.createEntity(new ColorDoor(rowIndex, colIndex, DoorColor.Red));
             break;
 
           case MazeObject.YellowDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Yellow));
+            this.area.createEntity(new ColorDoor(rowIndex, colIndex, DoorColor.Yellow));
             break;
 
           case MazeObject.GreenDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Green));
+            this.area.createEntity(new ColorDoor(rowIndex, colIndex, DoorColor.Green));
             break;
 
           case MazeObject.BlueDoor:
-            this.area.createEntity(new Door(rowIndex, colIndex, DoorColor.Blue));
+            this.area.createEntity(new ColorDoor(rowIndex, colIndex, DoorColor.Blue));
             break;
 
           case MazeObject.RedKey:
@@ -249,7 +250,6 @@ export class MainArea implements AreaState {
 
           case MazeObject.BlueKey:
             this.area.createEntity(new Key(rowIndex, colIndex, DoorColor.Blue));
-
             break;
 
           case MazeObject.Battery:
@@ -270,6 +270,26 @@ export class MainArea implements AreaState {
 
           case MazeObject.ABox:
             this.area.createEntity(new ElectricBox(rowIndex, colIndex, ElectricBoxType.A));
+            break;
+
+          case MazeObject.BBox:
+            this.area.createEntity(new ElectricBox(rowIndex, colIndex, ElectricBoxType.B));
+            break;
+
+          case MazeObject.CBox:
+            this.area.createEntity(new ElectricBox(rowIndex, colIndex, ElectricBoxType.C));
+            break;
+
+          case MazeObject.ADoor:
+            this.area.createEntity(new ElectricDoor(rowIndex, colIndex, ElectricBoxType.A));
+            break;
+
+          case MazeObject.BDoor:
+            this.area.createEntity(new ElectricDoor(rowIndex, colIndex, ElectricBoxType.B));
+            break;
+
+          case MazeObject.CDoor:
+            this.area.createEntity(new ElectricDoor(rowIndex, colIndex, ElectricBoxType.C));
             break;
 
           case MazeObject.Drone:

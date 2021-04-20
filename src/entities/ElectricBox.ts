@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { Key } from 'engine/input';
 import { HUD } from './HUD';
 import { Inventory } from 'resources/Inventory';
+import { DoorState } from 'resources/DoorState';
 
 /**
  * Box to open and close electric doors
@@ -38,7 +39,7 @@ export class ElectricBox implements EntityState {
   onCreate(entity: Entity<this>): void {
     this.entity = entity;
 
-    // Configure object
+    // Configure object model
     const object = this.entity.area.game.assets.getObject('ElectricBox').clone();
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
     object.children[0].castShadow = true;
@@ -70,18 +71,21 @@ export class ElectricBox implements EntityState {
 
   onStep(): void {
     this.mixer.update(0.01);
-
     this.testForPlayerInteraction();
 
-    // Trigger: Start spinning the wheel once the battery has been inserted
+    // Trigger: called ONE time after the battery has been inserted
     if (this.hasBattery && !this.insertBattery.isRunning() && !this.spinWheel.isRunning()) {
-      console.log('Powered!');
+      // Start the animation
       this.spinWheel.paused = false;
+
+      // Mark door as powered
+      const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
+      state.setDoorPowered(this.type, true);
     }
 
-    // Trigger: Hide the battery once it is removed
+    // Trigger: called ONE time after the battery has been removed
     if (!this.hasBattery && !this.insertBattery.isRunning() && this.batteryObject.visible) {
-      console.log('Unpowered!');
+      // Hide the battery
       this.batteryObject.visible = false;
 
       // Collect the battery again
@@ -133,9 +137,12 @@ export class ElectricBox implements EntityState {
 
         // Reverse animation
         this.insertBattery.timeScale = -1;
-        this.insertBattery.time = this.insertBattery.getClip().duration;
         this.insertBattery.paused = false;
         this.insertBattery.play();
+
+        // Mark door as unpowered
+        const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
+        state.setDoorPowered(this.type, false);
 
         // Indicate no battery
         this.hasBattery = false;

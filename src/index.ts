@@ -107,9 +107,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
       manager.saveObject('ElectricDoor', glb.scene);
 
       // Fix the material
-      adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
-      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
-      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+      adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0xffff00, 0.25);
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0xffffff, 0.3);
+      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0xffffff, 0.3);
     }),
     game.assets.loadGLTFFile(Lever, (glb, manager) => {
       manager.saveObject('Lever', glb.scene.children[0]);

@@ -13,7 +13,6 @@ export class Lever implements EntityState {
   public readonly tags: string[] = ['lever'];
 
   private entity: Entity<this>;
-
   private row: number;
   private column: number;
 
@@ -30,6 +29,7 @@ export class Lever implements EntityState {
   onCreate(entity: Entity<this>): void {
     this.entity = entity;
 
+    // Configure object model
     const object = this.entity.area.game.assets.getObject('Lever').clone();
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
     object.scale.set(1.5, 1.5, 1.5);
@@ -37,6 +37,7 @@ export class Lever implements EntityState {
     object.children[0].castShadow = true;
     this.entity.object = object;
 
+    // Configure collision mask
     this.entity.mask = new SphereCollisionMask(object);
 
     // Load animations
