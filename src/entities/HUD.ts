@@ -7,6 +7,8 @@ import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
 import { DoorColor } from './DoorColor';
 import * as THREE from 'three';
+import { DoorState } from 'resources/DoorState';
+import { ElectricBoxType } from './ElectricBoxType';
 
 // Map drawing flags
 const TILE_SIZE_PX = 16;
@@ -45,10 +47,20 @@ const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.YellowKey]: mapDrawIcon('YellowKey'),
   [MazeObject.GreenKey]: mapDrawIcon('GreenKey'),
   [MazeObject.BlueKey]: mapDrawIcon('BlueKey'),
-  [MazeObject.RedDoor]: mapDrawDoor('red'),
-  [MazeObject.YellowDoor]: mapDrawDoor('yellow'),
-  [MazeObject.GreenDoor]: mapDrawDoor('green'),
-  [MazeObject.BlueDoor]: mapDrawDoor('blue'),
+  [MazeObject.Battery]: mapDrawIcon('Battery'),
+  [MazeObject.Lever]: mapDrawLeverIcon(),
+  [MazeObject.RedDoor]: mapDrawDoor('red', checkColoredDoor),
+  [MazeObject.YellowDoor]: mapDrawDoor('yellow', checkColoredDoor),
+  [MazeObject.GreenDoor]: mapDrawDoor('green', checkColoredDoor),
+  [MazeObject.BlueDoor]: mapDrawDoor('blue', checkColoredDoor),
+  [MazeObject.ToggleDoor]: mapDrawDoor('orange', checkToggleDoor()),
+  [MazeObject.InverseToggleDoor]: mapDrawDoor('orange', checkToggleDoor(true)),
+  [MazeObject.ADoor]: mapDrawDoor('grey', checkElectricDoor(ElectricBoxType.A)),
+  [MazeObject.BDoor]: mapDrawDoor('grey', checkElectricDoor(ElectricBoxType.B)),
+  [MazeObject.CDoor]: mapDrawDoor('grey', checkElectricDoor(ElectricBoxType.C)),
+  [MazeObject.ABox]: mapDrawIcon('ElectricBox'),
+  [MazeObject.BBox]: mapDrawIcon('ElectricBox'),
+  [MazeObject.CBox]: mapDrawIcon('ElectricBox'),
 };
 
 const KEY_COLOR_ICON: Record<DoorColor, string> = {
@@ -491,7 +503,7 @@ function mapDrawIcon(name: string): DrawFunction {
   };
 }
 
-function mapDrawDoor(color: string): DrawFunction {
+function mapDrawClosedDoor(color: string): DrawFunction {
   return (g2d, x, y, row) => {
     g2d.fillStyle = color;
 
@@ -500,5 +512,59 @@ function mapDrawDoor(color: string): DrawFunction {
     } else {
       g2d.fillRect(x, y + TILE_SIZE_PX / 4, TILE_SIZE_PX, TILE_SIZE_PX / 2);
     }
+  };
+}
+
+function mapDrawOpenedDoor(color: string): DrawFunction {
+  return (g2d, x, y, row) => {
+    g2d.fillStyle = color;
+
+    const margin = 2;
+    if (row % 2 === 1) {
+      g2d.fillRect(x + TILE_SIZE_PX / 4, y, TILE_SIZE_PX / 2, margin);
+      g2d.fillRect(x + TILE_SIZE_PX / 4, y + TILE_SIZE_PX - margin, TILE_SIZE_PX / 2, margin);
+    } else {
+      g2d.fillRect(x, y + TILE_SIZE_PX / 4, margin, TILE_SIZE_PX / 2);
+      g2d.fillRect(x + TILE_SIZE_PX - margin, y + TILE_SIZE_PX / 4, margin, TILE_SIZE_PX / 2);
+    }
+  };
+}
+
+type ToggleFunction = (entity: Entity<HUD>, row: number, col: number) => boolean;
+
+function mapDrawDoor(color: string, isOpen: ToggleFunction): DrawFunction {
+  return (g2d, x, y, row, col, entity) => {
+    if (isOpen(entity, row, col)) {
+      mapDrawOpenedDoor(color)(g2d, x, y, row, col, entity);
+    } else {
+      mapDrawClosedDoor(color)(g2d, x, y, row, col, entity);
+    }
+  };
+}
+
+function checkColoredDoor(entity: Entity<HUD>, row: number, col: number) {
+  const state = entity.area.game.resources.getResource<DoorState>('door-state');
+  return state.isColoredDoorOpened(row, col);
+}
+
+function checkToggleDoor(reverse = false): ToggleFunction {
+  return (entity) => {
+    const state = entity.area.game.resources.getResource<DoorState>('door-state');
+    return state.getToggleState() !== reverse;
+  };
+}
+
+function checkElectricDoor(type: ElectricBoxType): ToggleFunction {
+  return (entity) => {
+    const state = entity.area.game.resources.getResource<DoorState>('door-state');
+    return state.isDoorPowered(type);
+  };
+}
+
+function mapDrawLeverIcon(): DrawFunction {
+  return (g2d, x, y, row, col, entity) => {
+    const state = entity.area.game.resources.getResource<DoorState>('door-state');
+    const icon = state.getToggleState() ? 'LeverReverse' : 'Lever';
+    mapDrawIcon(icon)(g2d, x, y, row, col, entity);
   };
 }

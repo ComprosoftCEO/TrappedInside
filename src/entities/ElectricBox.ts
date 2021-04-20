@@ -51,7 +51,6 @@ export class ElectricBox implements EntityState {
     this.entity.mask = new BoxCollisionMask(object);
     this.interactMask = new SphereCollisionMask(object);
     this.interactMask.sphere.radius *= 1.5;
-    this.entity.mask.showMask = true;
 
     // Load animations
     this.mixer = new THREE.AnimationMixer(object);
@@ -74,13 +73,15 @@ export class ElectricBox implements EntityState {
 
     this.testForPlayerInteraction();
 
-    // Start spinning the wheel once the battery has been inserted
+    // Trigger: Start spinning the wheel once the battery has been inserted
     if (this.hasBattery && !this.insertBattery.isRunning() && !this.spinWheel.isRunning()) {
+      console.log('Powered!');
       this.spinWheel.paused = false;
     }
 
-    // Hide the battery if it isn't in the spot
+    // Trigger: Hide the battery once it is removed
     if (!this.hasBattery && !this.insertBattery.isRunning() && this.batteryObject.visible) {
+      console.log('Unpowered!');
       this.batteryObject.visible = false;
 
       // Collect the battery again

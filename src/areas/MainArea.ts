@@ -19,6 +19,8 @@ import { Rock } from 'entities/Rock';
 import { Battery } from 'entities/Battery';
 import { ElectricBox } from 'entities/ElectricBox';
 import { ElectricBoxType } from 'entities/ElectricBoxType';
+import { DoorState } from 'resources/DoorState';
+import { ToggleDoor } from 'entities/ToggleDoor';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -145,6 +147,7 @@ export class MainArea implements AreaState {
     // Configure game resources
     this.area.game.resources.setResource('health', new Health());
     this.area.game.resources.setResource('inventory', new Inventory());
+    this.area.game.resources.setResource('door-state', new DoorState());
 
     // Build the room
     this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
@@ -255,6 +258,14 @@ export class MainArea implements AreaState {
 
           case MazeObject.Lever:
             this.area.createEntity(new Lever(rowIndex, colIndex));
+            break;
+
+          case MazeObject.ToggleDoor:
+            this.area.createEntity(new ToggleDoor(rowIndex, colIndex));
+            break;
+
+          case MazeObject.InverseToggleDoor:
+            this.area.createEntity(new ToggleDoor(rowIndex, colIndex, true));
             break;
 
           case MazeObject.ABox:

@@ -96,9 +96,11 @@ export class Drone implements EntityState {
 
     // Collision Mask
     this.entity.mask = new BoxCollisionMask(object.children[4]);
-    this.entity.mask.showMask = true;
 
+    // Timer to shoot mask
     this.entity.setTimer(0, 10, true);
+
+    // Start the maze movement
     this.pickNewDirection();
   }
 

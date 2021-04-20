@@ -6,24 +6,17 @@ import { DoorColor } from './DoorColor';
 import { HUD } from './HUD';
 import { Inventory } from 'resources/Inventory';
 import * as THREE from 'three';
-
-const DOOR_COLOR_MATERIALS: Record<DoorColor, THREE.Material> = {
-  [DoorColor.Red]: new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1 }),
-  [DoorColor.Yellow]: new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00, emissiveIntensity: 1 }),
-  [DoorColor.Green]: new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 1 }),
-  [DoorColor.Blue]: new THREE.MeshStandardMaterial({ color: 0x0000ff, emissive: 0x0000ff, emissiveIntensity: 1 }),
-};
+import { DoorState } from 'resources/DoorState';
 
 /**
  * Door object in the maze
  */
-export class Door implements EntityState {
+export class ToggleDoor implements EntityState {
   public readonly tags: string[] = ['wall'];
 
-  public readonly doorColor: DoorColor;
+  private readonly reverse: boolean;
 
   private entity: Entity<this>;
-  private interactMask: SphereCollisionMask;
 
   private row: number;
   private column: number;
@@ -44,17 +37,17 @@ export class Door implements EntityState {
   /**
    * Spawn a wall in a tile inside the maze
    */
-  constructor(row: number, column: number, color: DoorColor) {
+  constructor(row: number, column: number, reverse = false) {
     this.row = row;
     this.column = column;
-    this.doorColor = color;
+    this.reverse = reverse;
   }
 
   onCreate(entity: Entity<this>): void {
     this.entity = entity;
 
     // Put object in the correct location
-    const object = entity.area.game.assets.getObject('Door').clone();
+    const object = entity.area.game.assets.getObject('ToggleDoor').clone();
     object.scale.y = SCALE_BASE / 2;
     object.scale.z = SCALE_BASE / 2;
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
@@ -74,9 +67,6 @@ export class Door implements EntityState {
       keyChild.castShadow = true;
     }
 
-    // Update the material
-    this.configureMaterialColor(object.children[0].children[1] as THREE.Mesh);
-
     this.entity.object = object;
 
     // Configure collision masks
@@ -86,8 +76,6 @@ export class Door implements EntityState {
     this.rightDoorMask = new BoxCollisionMask(this.rightDoor);
 
     this.entity.mask = new GroupCollisionMask(this.leftDoorMask, this.rightDoorMask);
-    this.interactMask = new SphereCollisionMask(object);
-    // this.interactMask.sphere.radius *= 0.65;
 
     // Load animations
     this.mixer = new THREE.AnimationMixer(object);
@@ -95,16 +83,9 @@ export class Door implements EntityState {
     this.rightDoorAction = this.mixer.clipAction(entity.area.game.assets.getAnimation('RightDoorAction'));
     this.keyHoleAction = this.mixer.clipAction(entity.area.game.assets.getAnimation('KeyHoleAction'));
 
-    Door.configureAnimation(this.leftDoorAction);
-    Door.configureAnimation(this.rightDoorAction);
-    Door.configureAnimation(this.keyHoleAction);
-  }
-
-  private configureMaterialColor(key: THREE.Mesh): void {
-    const material = DOOR_COLOR_MATERIALS[this.doorColor];
-    if (typeof material !== 'undefined') {
-      key.material = material;
-    }
+    ToggleDoor.configureAnimation(this.leftDoorAction);
+    ToggleDoor.configureAnimation(this.rightDoorAction);
+    ToggleDoor.configureAnimation(this.keyHoleAction);
   }
 
   private static configureAnimation(action: THREE.AnimationAction): void {
@@ -116,50 +97,69 @@ export class Door implements EntityState {
 
   onStep(): void {
     this.mixer.update(0.01);
-    this.leftDoorMask.update(this.leftDoor);
-    this.rightDoorMask.update(this.rightDoor);
 
-    this.testForPlayerInteraction();
+    if (!this.open && this.isAnimationPlaying()) {
+      this.leftDoorMask.update(this.entity.object);
+      this.rightDoorMask.update(this.entity.object);
+    } else {
+      this.leftDoorMask.update(this.leftDoor);
+      this.rightDoorMask.update(this.rightDoor);
+    }
+
+    this.syncWithState();
+  }
+
+  private syncWithState(): void {
+    const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
+    const expectedState = this.reverse ? !state.getToggleState() : state.getToggleState();
+    if (this.open !== expectedState) {
+      if (this.open) {
+        this.closeDoor();
+      } else {
+        this.openDoor();
+      }
+    }
+  }
+
+  private closeDoor(): void {
+    this.open = false;
+
+    ToggleDoor.playActionInverse(this.leftDoorAction);
+    ToggleDoor.playActionInverse(this.rightDoorAction);
+    ToggleDoor.playActionInverse(this.keyHoleAction);
+  }
+
+  private openDoor(): void {
+    this.open = true;
+
+    ToggleDoor.playAction(this.leftDoorAction);
+    ToggleDoor.playAction(this.rightDoorAction);
+    ToggleDoor.playAction(this.keyHoleAction);
   }
 
   /**
-   * See if the player is colliding so it can handle user interaction
+   * Test if the animation is currently open
    */
-  private testForPlayerInteraction(): void {
-    if (this.open) {
-      return; // No more need to check
-    }
+  private isAnimationPlaying(): boolean {
+    return this.leftDoorAction.isRunning() || this.rightDoorAction.isRunning() || this.keyHoleAction.isRunning();
+  }
 
-    const player = this.entity.area.findFirstEntity('player');
-    if (player === null || !this.interactMask.isCollidingWith(player.mask)) {
-      return;
-    }
+  /**
+   * Play an action in the forward direction
+   */
+  private static playAction(action: THREE.AnimationAction) {
+    action.timeScale = 1;
+    action.paused = false;
+    action.play();
+  }
 
-    // Show HUD message
-    const hud = this.entity.area.findFirstEntity('hud') as Entity<HUD>;
-    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
-    const keyAvailable = inventory.hasKeyAvailable(this.doorColor);
-    if (hud !== null) {
-      if (hud.state.message.length > 0) {
-        return;
-      }
-
-      const color = DoorColor[this.doorColor].toLowerCase();
-      hud.state.message = keyAvailable ? `Action: Use ${color} key` : `Needs a ${color} key`;
-    }
-
-    // Test for the actual action
-    const input = this.entity.area.game.input;
-    if (input.isKeyStarted(Key.E) && keyAvailable) {
-      // Use the key
-      inventory.useKey(this.doorColor);
-      this.open = true;
-
-      // Play the animation
-      this.leftDoorAction.play();
-      this.rightDoorAction.play();
-      this.keyHoleAction.play();
-    }
+  /**
+   * Play an action in the inverse direction
+   */
+  private static playActionInverse(action: THREE.AnimationAction) {
+    action.timeScale = -1;
+    action.paused = false;
+    action.play();
   }
 
   onTimer(_timerIndex: number): void {}

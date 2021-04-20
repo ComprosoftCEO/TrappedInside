@@ -4,6 +4,7 @@ import { Entity, EntityState } from 'engine/entity';
 import { Key } from 'engine/input';
 import { HUD } from './HUD';
 import * as THREE from 'three';
+import { DoorState } from 'resources/DoorState';
 
 /**
  * Lever that updates the toggle doors
@@ -37,7 +38,6 @@ export class Lever implements EntityState {
     this.entity.object = object;
 
     this.entity.mask = new SphereCollisionMask(object);
-    this.entity.mask.showMask = true;
 
     // Load animations
     this.mixer = new THREE.AnimationMixer(object);
@@ -86,18 +86,37 @@ export class Lever implements EntityState {
     const input = this.entity.area.game.input;
     if (input.isKeyStarted(Key.E)) {
       if (this.open) {
-        // Reverse animation
-        this.leverAction.timeScale = -1;
-        this.leverAction.time = this.leverAction.getClip().duration;
+        this.closeLever();
       } else {
-        // Open animation
-        this.leverAction.timeScale = 1;
+        this.openLever();
       }
 
-      this.leverAction.paused = false;
-      this.open = !this.open;
-      this.leverAction.play();
+      const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
+      state.toggleDoors();
     }
+  }
+
+  /**
+   * Play animation to "open" the lever
+   */
+  private openLever(): void {
+    this.open = true;
+
+    this.leverAction.timeScale = 1;
+    this.leverAction.paused = false;
+    this.leverAction.play();
+  }
+
+  /**
+   * Play animation to "close" the lever
+   */
+  private closeLever(): void {
+    this.open = false;
+
+    this.leverAction.timeScale = -1;
+    this.leverAction.time = this.leverAction.getClip().duration;
+    this.leverAction.paused = false;
+    this.leverAction.play();
   }
 
   onTimer(_timerIndex: number): void {}

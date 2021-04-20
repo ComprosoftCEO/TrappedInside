@@ -38,6 +38,9 @@ import GreenKey from 'assets/images/GreenKey.png';
 import BlueKey from 'assets/images/BlueKey.png';
 import Energy from 'assets/images/Energy.png';
 import BatteryIcon from 'assets/images/Battery.png';
+import LeverIcon from 'assets/images/Lever.png';
+import LeverReverseIcon from 'assets/images/LeverReverse.png';
+import ElectricBoxIcon from 'assets/images/ElectricBox.png';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -96,8 +99,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
 
       // Fix the material
       adjustEmission(glb.scene.children[0].children[0] as THREE.Mesh, 0x737373, 0.25);
-      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.25);
-      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.25);
+      adjustEmission(glb.scene.children[0].children[1] as THREE.Mesh, 0x6900cc, 0.25);
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x7a6c6c, 0.15);
+      adjustEmission(glb.scene.children[2] as THREE.Mesh, 0x7a6c6c, 0.15);
     }),
     game.assets.loadGLTFFile(ElectricDoor, (glb, manager) => {
       manager.saveObject('ElectricDoor', glb.scene);
@@ -157,6 +161,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('BlueKey', BlueKey),
     game.assets.loadImage('Energy', Energy),
     game.assets.loadImage('Battery', BatteryIcon),
+    game.assets.loadImage('Lever', LeverIcon),
+    game.assets.loadImage('LeverReverse', LeverReverseIcon),
+    game.assets.loadImage('ElectricBox', ElectricBoxIcon),
   ]);
 
   return game;
