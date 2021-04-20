@@ -1,7 +1,6 @@
 import { Area, AreaState } from 'engine/area';
 import { AudioWrapper } from 'engine/audio';
 import { Player } from 'entities/Player';
-import TestMaze from 'assets/levels/TestMaze.lvl';
 import { MazeWalls } from 'entities/MazeWalls';
 import { MazeFloor } from 'entities/MazeFloor';
 import { ColorDoor } from 'entities/ColorDoor';
@@ -21,6 +20,8 @@ import { ElectricBoxType } from 'entities/ElectricBoxType';
 import { DoorState } from 'resources/DoorState';
 import { ToggleDoor } from 'entities/ToggleDoor';
 import { ElectricDoor } from 'entities/ElectricDoor';
+import { Portal } from 'entities/Portal';
+import TestMaze from 'assets/levels/TestMaze.lvl';
 import * as THREE from 'three';
 
 // Size of each tile in the maze (NxN)
@@ -294,6 +295,11 @@ export class MainArea implements AreaState {
 
           case MazeObject.Drone:
             this.area.createEntity(new Drone(rowIndex, colIndex));
+            this.maze[rowIndex][colIndex] = MazeObject.Empty;
+            break;
+
+          case MazeObject.Portal:
+            this.area.createEntity(new Portal(rowIndex, colIndex));
             break;
         }
       }

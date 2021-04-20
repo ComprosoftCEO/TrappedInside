@@ -6,9 +6,9 @@ import { Key } from 'engine/input';
 import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
 import { DoorColor } from './DoorColor';
-import * as THREE from 'three';
 import { DoorState } from 'resources/DoorState';
 import { ElectricBoxType } from './ElectricBoxType';
+import * as THREE from 'three';
 
 // Map drawing flags
 const TILE_SIZE_PX = 16;
@@ -43,16 +43,16 @@ type DrawFunction = (
 const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.Wall]: mapDrawWall,
   [MazeObject.Energy]: mapDrawIcon('Energy'),
+  [MazeObject.RedDoor]: mapDrawDoor('red', checkColoredDoor),
+  [MazeObject.YellowDoor]: mapDrawDoor('yellow', checkColoredDoor),
+  [MazeObject.GreenDoor]: mapDrawDoor('green', checkColoredDoor),
+  [MazeObject.BlueDoor]: mapDrawDoor('blue', checkColoredDoor),
   [MazeObject.RedKey]: mapDrawIcon('RedKey'),
   [MazeObject.YellowKey]: mapDrawIcon('YellowKey'),
   [MazeObject.GreenKey]: mapDrawIcon('GreenKey'),
   [MazeObject.BlueKey]: mapDrawIcon('BlueKey'),
   [MazeObject.Battery]: mapDrawIcon('Battery'),
   [MazeObject.Lever]: mapDrawLeverIcon(),
-  [MazeObject.RedDoor]: mapDrawDoor('red', checkColoredDoor),
-  [MazeObject.YellowDoor]: mapDrawDoor('yellow', checkColoredDoor),
-  [MazeObject.GreenDoor]: mapDrawDoor('green', checkColoredDoor),
-  [MazeObject.BlueDoor]: mapDrawDoor('blue', checkColoredDoor),
   [MazeObject.ToggleDoor]: mapDrawDoor('orange', checkToggleDoor()),
   [MazeObject.InverseToggleDoor]: mapDrawDoor('orange', checkToggleDoor(true)),
   [MazeObject.ADoor]: mapDrawDoor('grey', checkElectricDoor(ElectricBoxType.A)),
@@ -61,6 +61,7 @@ const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.ABox]: mapDrawIcon('ElectricBox'),
   [MazeObject.BBox]: mapDrawIcon('ElectricBox'),
   [MazeObject.CBox]: mapDrawIcon('ElectricBox'),
+  [MazeObject.Portal]: mapDrawPortal(),
 };
 
 const KEY_COLOR_ICON: Record<DoorColor, string> = {
@@ -566,5 +567,21 @@ function mapDrawLeverIcon(): DrawFunction {
     const state = entity.area.game.resources.getResource<DoorState>('door-state');
     const icon = state.getToggleState() ? 'LeverReverse' : 'Lever';
     mapDrawIcon(icon)(g2d, x, y, row, col, entity);
+  };
+}
+
+function mapDrawPortal(): DrawFunction {
+  return (g2d, x, y, _row, _col, entity) => {
+    const mainArea = entity.area.state as MainArea;
+    if (mainArea.energyLeft === 0) {
+      g2d.fillStyle = '#5B00E7';
+    } else {
+      g2d.fillStyle = '#511f1f';
+    }
+
+    g2d.fillRect(x - (2 * TILE_SIZE_PX) / 3, y + TILE_SIZE_PX / 4, (7 * TILE_SIZE_PX) / 3, TILE_SIZE_PX / 2);
+
+    const iconImage = entity.area.game.assets.getImage('Energy');
+    g2d.drawImage(iconImage, x + TILE_SIZE_PX / 4, y + TILE_SIZE_PX / 4, TILE_SIZE_PX / 2, TILE_SIZE_PX / 2);
   };
 }

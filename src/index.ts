@@ -30,6 +30,7 @@ import Rock from 'assets/objects/Rock.glb';
 import Drone from 'assets/objects/Drone.glb';
 import Gun from 'assets/objects/Gun.glb';
 import Explosion from 'assets/objects/Explosion.glb';
+import Portal from 'assets/objects/Portal.glb';
 
 // Images
 import RedKey from 'assets/images/RedKey.png';
@@ -154,6 +155,18 @@ async function loadAllAssets(game: Game): Promise<Game> {
       const material = explosion.material as THREE.MeshStandardMaterial;
       material.transparent = true;
       material.opacity = 0.75;
+    }),
+    game.assets.loadGLTFFile(Portal, (glb, manager) => {
+      manager.saveObject('Portal', glb.scene);
+      for (const animation of glb.animations) {
+        manager.saveAnimation(animation.name, animation);
+      }
+
+      // Fix the portal materials
+      adjustEmission(glb.scene.children[1] as THREE.Mesh, 0x511f1f, 0.25);
+      const material = (glb.scene.children[2] as THREE.Mesh).material as THREE.MeshStandardMaterial;
+      material.transparent = true;
+      material.opacity = 0.8;
     }),
     game.assets.loadImage('RedKey', RedKey),
     game.assets.loadImage('YellowKey', YellowKey),
