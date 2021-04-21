@@ -40,6 +40,7 @@ export class Key implements EntityState {
     object.position.copy((entity.area.state as MainArea).tileLocationToPosition(this.row, this.column));
     object.position.y = 2;
     object.rotation.y = randomFloat(0, 2 * Math.PI);
+    object.scale.set(0.5, 0.25, 0.25);
     object.castShadow = true;
     this.entity.object = object;
 
