@@ -102,13 +102,16 @@ export class HUD implements EntityState {
           .fill(null)
           .map(() => false),
       );
+
+    // Only draw map every few frames, as this is an expensive operation
+    this.entity.setTimer(0, 24, true);
+    this.redrawMap();
   }
 
   onDestroy(): void {}
 
   onStep(): void {
     this.updateVisited();
-    this.redrawMap();
     this.shouldDrawMap = this.entity.area.game.input.isKeyDown(Key.M);
   }
 
@@ -183,17 +186,13 @@ export class HUD implements EntityState {
       g2d.lineWidth = 1;
       g2d.stroke();
     }
-
-    // Also draw an arrow to represent the player
-    const [playerTileRow, playerTileCol] = mainArea.getPlayerTileLocation();
-    const playerX = MARGIN_PX + playerTileCol * TILE_SIZE_PX + TILE_SIZE_PX / 2;
-    const playerY = MARGIN_PX + playerTileRow * TILE_SIZE_PX + TILE_SIZE_PX / 2;
-    g2d.strokeStyle = 'red';
-    g2d.lineWidth = 2.0;
-    drawArrow(g2d, playerX, playerY, mainArea.getPlayerAngle(), TILE_SIZE_PX);
   }
 
-  onTimer(_timerIndex: number): void {}
+  onTimer(timerIndex: number): void {
+    if (timerIndex === 0) {
+      this.redrawMap();
+    }
+  }
 
   onDraw(g2d: CanvasRenderingContext2D): void {
     if (this.shouldDrawMap) {
@@ -210,6 +209,17 @@ export class HUD implements EntityState {
    * Draw the main heads-up display
    */
   private drawHUD(g2d: CanvasRenderingContext2D) {
+    this.drawHealthBar(g2d);
+    this.drawMapSubset(g2d);
+    this.drawInventory(g2d);
+    this.drawMessage(g2d);
+    this.drawTarget(g2d);
+  }
+
+  /**
+   * Draw the player health bar in the top left corner
+   */
+  private drawHealthBar(g2d: CanvasRenderingContext2D): void {
     // Draw "Health" Text
     g2d.textAlign = 'left';
     g2d.textBaseline = 'top';
@@ -229,18 +239,6 @@ export class HUD implements EntityState {
       new THREE.Color(0, 1, 0),
       new THREE.Color(1, 0, 0),
     );
-
-    // Draw the minimap
-    this.drawMapSubset(g2d);
-
-    // And inventory
-    this.drawInventory(g2d);
-
-    // Message along the bottom of the screen
-    this.drawMessage(g2d);
-
-    // Draw a small plus at the center of the screen
-    this.drawTarget(g2d);
   }
 
   /**
@@ -282,6 +280,11 @@ export class HUD implements EntityState {
     g2d.fillText('S', leftValueX + imageSize / 2, HUD_TOP + imageSize - compassMargin);
     g2d.fillText('W', leftValueX + compassMargin, HUD_TOP + imageSize / 2);
     g2d.fillText('E', leftValueX + imageSize - compassMargin, HUD_TOP + imageSize / 2);
+
+    // Draw an arrow to represent the player
+    g2d.strokeStyle = 'red';
+    g2d.lineWidth = 2.0;
+    drawArrow(g2d, leftValueX + imageSize / 2, HUD_TOP + imageSize / 2, mainArea.getPlayerAngle(), TILE_SIZE_PX);
   }
 
   /**
@@ -436,6 +439,17 @@ export class HUD implements EntityState {
     g2d.fillText('S', leftX + imgWidth / 2, topY + imgHeight - compassMargin);
     g2d.fillText('W', leftX + compassMargin, topY + imgHeight / 2);
     g2d.fillText('E', leftX + imgWidth - compassMargin, topY + imgHeight / 2);
+
+    // Draw an arrow to represent the player
+    g2d.strokeStyle = 'red';
+    g2d.lineWidth = 2.0;
+    drawArrow(
+      g2d,
+      leftX + imgWidth / 2 + TILE_SIZE_PX / 2 + MARGIN_PX,
+      topY + imgHeight / 2 + TILE_SIZE_PX / 2 + MARGIN_PX,
+      mainArea.getPlayerAngle(),
+      TILE_SIZE_PX,
+    );
   }
 }
 
