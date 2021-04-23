@@ -42,6 +42,18 @@ export class SidePathsGenerator {
     this.processItemNodes(this.root);
     this.minDepth = Math.max(0, this.sideNodes.highestDepth - Math.floor(WINDOW_SIZE / 2));
 
+    // Make sure none of the main nodes and side nodes already have items
+    for (const node of this.sideNodes.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        this.sideNodes.remove(node);
+      }
+    }
+    for (const node of this.mainNodes.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        this.mainNodes.remove(node);
+      }
+    }
+
     do {
       this.addSingleRandomDoor();
       this.shiftMinDepth();

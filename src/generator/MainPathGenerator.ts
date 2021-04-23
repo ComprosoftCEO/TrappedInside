@@ -71,7 +71,7 @@ export class MainPathGenerator {
     this.shiftMinDepth();
 
     // 2. Pick a random door type
-    const randomDoor = pickRandomArray(Array.from(this.doorsLeft));
+    let randomDoor = pickRandomArray(Array.from(this.doorsLeft));
     this.doorsLeft.delete(randomDoor);
     doorLocation.object = randomDoor;
 
@@ -88,21 +88,19 @@ export class MainPathGenerator {
       let doorItemNode: TreeNode;
 
       // 5. Pick a random location for all the items in the maze
-      const itemLocations = [];
       for (const [itemIndex, item] of needed.entries()) {
         // Pick an item location, if any are avaiable.
-        //   If no item locations are avaiabile, remove the last door, any leftover items, and kill the algorithm
+        //   If no item locations are available, remove the last door, any leftover items, and kill the algorithm
         const itemLocation = this.pickRandomItemLocation();
         if (itemLocation === null) {
           doorLocation.object = MazeObject.Empty;
-          itemLocations.forEach((l) => (l.object = MazeObject.Empty));
+          this.doorsLeft.add(randomDoor);
           break outerLoop;
         }
 
         // Okay, a location exists so add the item to the maze
         itemLocation.object = item;
         this.hist.removeRecursive(itemLocation);
-        itemLocations.push(itemLocation);
 
         // Which item gets the door?
         if (itemIndex === doorIndex) {
@@ -120,7 +118,7 @@ export class MainPathGenerator {
         this.hist.removeRecursive(doorLocation);
 
         // Pick the random item for the door
-        const randomDoor = pickRandomArray(Array.from(this.doorsLeft));
+        randomDoor = pickRandomArray(Array.from(this.doorsLeft));
         this.doorsLeft.delete(randomDoor);
         doorLocation.object = randomDoor;
 
