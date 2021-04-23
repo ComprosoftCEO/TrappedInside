@@ -50,7 +50,9 @@ export class MazeFloor implements EntityState {
     const texture = this.entity.area.game.assets.getTexture(name);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(this.width * SCALE_BASE, this.height * SCALE_BASE);
+    texture.repeat.set((SCALE_BASE * this.width) / 2, (SCALE_BASE * this.height) / 2);
+    texture.offset.set(0.5, 0.5);
+    texture.rotation = Math.PI / 6;
     return texture;
   }
 

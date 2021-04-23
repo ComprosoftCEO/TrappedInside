@@ -206,11 +206,11 @@ export class MainArea implements AreaState {
             wallEntity.state.addWall(rowIndex, colIndex, this);
             break;
 
-          case MazeObject.Player:
-            if (playerPosition === null) {
-              playerPosition = [rowIndex, colIndex];
-            }
-            break;
+          // case MazeObject.Player:
+          //   if (playerPosition === null) {
+          //     playerPosition = [rowIndex, colIndex];
+          //   }
+          //   break;
 
           case MazeObject.Rock:
             this.area.createEntity(new Rock(rowIndex, colIndex));
@@ -299,7 +299,10 @@ export class MainArea implements AreaState {
             break;
 
           case MazeObject.Portal:
-            this.area.createEntity(new Portal(rowIndex, colIndex));
+            if (playerPosition === null) {
+              playerPosition = [rowIndex, colIndex];
+              this.area.createEntity(new Portal(rowIndex, colIndex));
+            }
             break;
         }
       }
