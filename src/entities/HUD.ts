@@ -398,8 +398,8 @@ export class HUD implements EntityState {
     const imgWidth = Math.min(maxWidth, this.mapCanvas.width);
     const imgHeight = Math.min(maxHeight, this.mapCanvas.height);
 
-    const leftImgX = playerTileCol * TILE_SIZE_PX;
-    const leftImgY = playerTileRow * TILE_SIZE_PX;
+    const leftImgX = playerTileCol * TILE_SIZE_PX + TILE_SIZE_PX / 2 + MARGIN_PX;
+    const leftImgY = playerTileRow * TILE_SIZE_PX + TILE_SIZE_PX / 2 + MARGIN_PX;
     const centerX = this.entity.area.overlayWidth / 2;
     const centerY = this.entity.area.overlayHeight / 2;
     const leftX = centerX - imgWidth / 2;
@@ -444,13 +444,7 @@ export class HUD implements EntityState {
     // Draw an arrow to represent the player
     g2d.strokeStyle = 'red';
     g2d.lineWidth = 2.0;
-    drawArrow(
-      g2d,
-      leftX + imgWidth / 2 + TILE_SIZE_PX / 2 + MARGIN_PX,
-      topY + imgHeight / 2 + TILE_SIZE_PX / 2 + MARGIN_PX,
-      mainArea.getPlayerAngle(),
-      TILE_SIZE_PX,
-    );
+    drawArrow(g2d, leftX + imgWidth / 2, topY + imgHeight / 2, mainArea.getPlayerAngle(), TILE_SIZE_PX);
   }
 }
 
