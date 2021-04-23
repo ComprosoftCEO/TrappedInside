@@ -22,7 +22,9 @@ import { ToggleDoor } from 'entities/ToggleDoor';
 import { ElectricDoor } from 'entities/ElectricDoor';
 import { Portal } from 'entities/Portal';
 import TestMaze from 'assets/levels/TestMaze.lvl';
+import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
+import { MazeGenerator } from 'generator/MazeGenerator';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -49,7 +51,10 @@ export class MainArea implements AreaState {
   private playerAngle: number; // Angle in radians
 
   constructor() {
-    this.maze = stringToMaze(TestMaze);
+    const generator = new MazeGenerator(9, 9, stringToMaze(Template));
+    this.maze = generator.generateMaze();
+
+    // this.maze = stringToMaze(TestMaze);
   }
 
   /**

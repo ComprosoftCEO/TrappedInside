@@ -100,7 +100,7 @@ export class HUD implements EntityState {
       .map(() =>
         Array(mainArea.mazeWidth)
           .fill(null)
-          .map(() => false),
+          .map(() => true),
       );
 
     // Only draw map every few frames, as this is an expensive operation

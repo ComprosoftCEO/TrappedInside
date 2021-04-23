@@ -59,7 +59,7 @@ loadAllAssets(game)
     game.start(new MainArea());
   })
   .catch((error) => {
-    console.log('Failed to load assets: ' + error);
+    console.log('Failed to load assets: ' + error, error.stack);
   });
 
 /**
