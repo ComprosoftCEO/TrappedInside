@@ -1,3 +1,4 @@
+/// All objects that can be inside the maze
 export enum MazeObject {
   Empty,
   Player,
@@ -26,6 +27,36 @@ export enum MazeObject {
   BigDoor,
   Portal,
 }
+
+/// List of main doors used by the generator
+///  Note: Does not include the inverse toggle door, as this requires a special case algorithm
+export const ALL_MAIN_DOORS: MazeObject[] = [
+  MazeObject.RedDoor,
+  MazeObject.YellowDoor,
+  MazeObject.GreenDoor,
+  MazeObject.BlueDoor,
+  MazeObject.ToggleDoor,
+  MazeObject.ADoor,
+  MazeObject.BDoor,
+  MazeObject.CDoor,
+];
+
+/// List of items required to open a door
+export interface DoorItems {
+  oneTimeItem?: MazeObject; // Items used once to open the door
+  reuseItem?: MazeObject; // Item that is reused to open the door
+}
+
+export const DOOR_ITEMS: { [K in MazeObject]?: DoorItems } = {
+  [MazeObject.RedDoor]: { oneTimeItem: MazeObject.RedKey },
+  [MazeObject.YellowDoor]: { oneTimeItem: MazeObject.YellowKey },
+  [MazeObject.GreenDoor]: { oneTimeItem: MazeObject.GreenKey },
+  [MazeObject.BlueDoor]: { oneTimeItem: MazeObject.BlueKey },
+  [MazeObject.ToggleDoor]: { reuseItem: MazeObject.Lever },
+  [MazeObject.ADoor]: { oneTimeItem: MazeObject.Battery, reuseItem: MazeObject.ABox },
+  [MazeObject.BDoor]: { oneTimeItem: MazeObject.Battery, reuseItem: MazeObject.BBox },
+  [MazeObject.CDoor]: { oneTimeItem: MazeObject.Battery, reuseItem: MazeObject.CBox },
+};
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   [' ']: MazeObject.Empty,

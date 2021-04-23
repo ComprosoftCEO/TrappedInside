@@ -11,6 +11,7 @@ export interface TreeNode {
   parent: TreeNode | null;
   children: TreeNode[];
   depth: number;
+  absoluteDepth: number;
 }
 
 // Up, down, left, right deltas
@@ -31,7 +32,7 @@ const ALL_DIRECTIONS: [number, number][] = [
  * @param rootCol Column for the root node
  */
 export function buildTreeNodes(maze: boolean[][], rootRow: number, rootCol: number): TreeNode {
-  return buildTreeNodesRecurse(maze, rootRow, rootCol, 0, NaN, NaN);
+  return buildTreeNodesRecurse(maze, rootRow, rootCol, 0, 0, NaN, NaN);
 }
 
 /// Recursive method to check for pre-visited tiles and handle the depth
@@ -40,6 +41,7 @@ function buildTreeNodesRecurse(
   rootRow: number,
   rootCol: number,
   depth: number,
+  absoluteDepth: number,
   lastRow: number,
   lastCol: number,
 ): TreeNode {
@@ -50,6 +52,7 @@ function buildTreeNodesRecurse(
     parent: null,
     children: [],
     depth,
+    absoluteDepth,
   };
 
   // Find the possible children directions for this node
@@ -66,7 +69,7 @@ function buildTreeNodesRecurse(
 
   // Recursively add all children to the tree using depth-first search
   for (const [newRow, newCol] of childDirections) {
-    const child = buildTreeNodesRecurse(maze, newRow, newCol, newDepth, rootRow, rootCol);
+    const child = buildTreeNodesRecurse(maze, newRow, newCol, newDepth, absoluteDepth + 1, rootRow, rootCol);
     child.parent = rootNode;
     rootNode.children.push(child);
   }

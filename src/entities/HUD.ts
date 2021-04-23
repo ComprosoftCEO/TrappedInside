@@ -113,7 +113,7 @@ export class HUD implements EntityState {
 
   onStep(): void {
     this.updateVisited();
-    this.shouldDrawMap = this.entity.area.game.input.isKeyDown(Key.M);
+    this.shouldDrawMap = !this.entity.area.game.input.isKeyDown(Key.M);
   }
 
   /**

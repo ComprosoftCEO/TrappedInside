@@ -21,11 +21,11 @@ import { DoorState } from 'resources/DoorState';
 import { ToggleDoor } from 'entities/ToggleDoor';
 import { ElectricDoor } from 'entities/ElectricDoor';
 import { Portal } from 'entities/Portal';
+import { BigDoor } from 'entities/BigDoor';
+import { MazeGenerator } from 'generator/MazeGenerator';
 import TestMaze from 'assets/levels/TestMaze.lvl';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
-import { MazeGenerator } from 'generator/MazeGenerator';
-import { BigDoor } from 'entities/BigDoor';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;

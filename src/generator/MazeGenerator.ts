@@ -1,6 +1,7 @@
 import { MazeObject } from 'areas/MazeObject';
+import { MainPathGenerator } from './MainPathGenerator';
 import { MazeWallsGenerator } from './MazeWallsGenerator';
-import { buildTreeNodes } from './TreeNode';
+import { buildTreeNodes, TreeNode } from './TreeNode';
 
 /**
  * Procedural algorithm to generate random mazes
@@ -42,6 +43,11 @@ export class MazeGenerator {
     // Convert the maze walls into a tree
     const [rootRow, rootCol] = this.getRootNode();
     const nodes = buildTreeNodes(walls, rootRow, rootCol);
+
+    // Generate the main path in the tree
+    const mainPathGenerator = new MainPathGenerator(nodes);
+    mainPathGenerator.generateMainPath();
+    MazeGenerator.loadNodes(objects, nodes);
 
     return objects;
   }
@@ -118,6 +124,16 @@ export class MazeGenerator {
       for (let col = leftCol; col < rightCol; col += 1) {
         objects[row][col] = this.centerTemplate[row - topRow][col - leftCol];
       }
+    }
+  }
+
+  /**
+   * Recursively load the nodes into the maze
+   */
+  private static loadNodes(maze: MazeObject[][], node: TreeNode): void {
+    maze[node.row][node.column] = node.object;
+    for (const child of node.children) {
+      this.loadNodes(maze, child);
     }
   }
 }
