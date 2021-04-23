@@ -61,6 +61,7 @@ const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.ABox]: mapDrawIcon('ElectricBox'),
   [MazeObject.BBox]: mapDrawIcon('ElectricBox'),
   [MazeObject.CBox]: mapDrawIcon('ElectricBox'),
+  [MazeObject.BigDoor]: mapDrawDoor('#654321', checkBigDoor),
   [MazeObject.Portal]: mapDrawPortal(),
 };
 
@@ -557,7 +558,12 @@ function mapDrawDoor(color: string, isOpen: ToggleFunction): DrawFunction {
   };
 }
 
-function checkColoredDoor(entity: Entity<HUD>, row: number, col: number) {
+function checkBigDoor(entity: Entity<HUD>): boolean {
+  const state = entity.area.game.resources.getResource<DoorState>('door-state');
+  return state.isBigDoorOpened();
+}
+
+function checkColoredDoor(entity: Entity<HUD>, row: number, col: number): boolean {
   const state = entity.area.game.resources.getResource<DoorState>('door-state');
   return state.isColoredDoorOpened(row, col);
 }

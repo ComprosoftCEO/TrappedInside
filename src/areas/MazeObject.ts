@@ -23,6 +23,7 @@ export enum MazeObject {
   BBox,
   CBox,
   Drone,
+  BigDoor,
   Portal,
 }
 
@@ -51,6 +52,7 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   ['b']: MazeObject.BBox,
   ['c']: MazeObject.CBox,
   ['d']: MazeObject.Drone,
+  ['n']: MazeObject.BigDoor,
   ['P']: MazeObject.Portal,
 };
 

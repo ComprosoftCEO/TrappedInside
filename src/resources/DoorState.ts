@@ -4,6 +4,9 @@ import { ElectricBoxType } from 'entities/ElectricBoxType';
  * Handles the state of the doors in the room
  */
 export class DoorState {
+  /// Big Door!
+  private bigDoorOpened = false;
+
   // Colored doors
   private coloredDoors: Set<string> = new Set();
 
@@ -16,6 +19,14 @@ export class DoorState {
     [ElectricBoxType.B]: false,
     [ElectricBoxType.C]: false,
   };
+
+  public isBigDoorOpened(): boolean {
+    return this.bigDoorOpened;
+  }
+
+  public openBigDoor(): void {
+    this.bigDoorOpened = true;
+  }
 
   public isColoredDoorOpened(row: number, col: number): boolean {
     return this.coloredDoors.has(`${row}-${col}`);

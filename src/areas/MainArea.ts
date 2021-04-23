@@ -25,6 +25,7 @@ import TestMaze from 'assets/levels/TestMaze.lvl';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
 import { MazeGenerator } from 'generator/MazeGenerator';
+import { BigDoor } from 'entities/BigDoor';
 
 // Size of each tile in the maze (NxN)
 export const SCALE_BASE = 5;
@@ -301,6 +302,10 @@ export class MainArea implements AreaState {
           case MazeObject.Drone:
             this.area.createEntity(new Drone(rowIndex, colIndex));
             this.maze[rowIndex][colIndex] = MazeObject.Empty;
+            break;
+
+          case MazeObject.BigDoor:
+            this.area.createEntity(new BigDoor(rowIndex, colIndex));
             break;
 
           case MazeObject.Portal:

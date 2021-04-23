@@ -12,7 +12,7 @@ export abstract class AbstractDoor {
 
   protected row: number;
   protected column: number;
-  protected open = false;
+  private _open = false;
 
   // Store references to the mesh objects and collision mask components
   private doorObject: string;
@@ -31,6 +31,11 @@ export abstract class AbstractDoor {
     this.row = row;
     this.column = column;
     this.doorObject = doorObject;
+  }
+
+  /// Test if the door is opened or not
+  protected get open(): boolean {
+    return this._open;
   }
 
   /// Handles on create method for specific doors
@@ -96,7 +101,7 @@ export abstract class AbstractDoor {
     this.mixer.update(0.01);
 
     // Special case: mask entire door when closing so player does not get stuck in door
-    if (!this.open && this.isAnimationPlaying()) {
+    if (!this._open && this.isAnimationPlaying()) {
       this.leftDoorMask.update(this.entity.object);
       this.rightDoorMask.update(this.entity.object);
     } else {
@@ -110,24 +115,26 @@ export abstract class AbstractDoor {
 
   /**
    * Play the open door animation and closes the door.
+   * Optionally specify a custom time scale (relative speed) for the door (Should be > 0).
    */
-  protected openDoor(): void {
-    this.open = true;
+  protected openDoor(timeScale = 1): void {
+    this._open = true;
 
-    AbstractDoor.playAction(this.leftDoorAction);
-    AbstractDoor.playAction(this.rightDoorAction);
-    AbstractDoor.playAction(this.keyHoleAction);
+    AbstractDoor.playAction(this.leftDoorAction, timeScale);
+    AbstractDoor.playAction(this.rightDoorAction, timeScale);
+    AbstractDoor.playAction(this.keyHoleAction, timeScale);
   }
 
   /**
    * Play the close door animation and closes the door.
+   * Optionally specify a custom time scale (relative speed) for the door (Should be > 0).
    */
-  protected closeDoor(): void {
-    this.open = false;
+  protected closeDoor(timeScale = 1): void {
+    this._open = false;
 
-    AbstractDoor.playActionInverse(this.leftDoorAction);
-    AbstractDoor.playActionInverse(this.rightDoorAction);
-    AbstractDoor.playActionInverse(this.keyHoleAction);
+    AbstractDoor.playActionInverse(this.leftDoorAction, timeScale);
+    AbstractDoor.playActionInverse(this.rightDoorAction, timeScale);
+    AbstractDoor.playActionInverse(this.keyHoleAction, timeScale);
   }
 
   /**
@@ -140,8 +147,8 @@ export abstract class AbstractDoor {
   /**
    * Play an action in the forward direction
    */
-  private static playAction(action: THREE.AnimationAction) {
-    action.timeScale = 1;
+  private static playAction(action: THREE.AnimationAction, timeScale: number) {
+    action.timeScale = Math.abs(timeScale);
     action.paused = false;
     action.play();
   }
@@ -149,8 +156,8 @@ export abstract class AbstractDoor {
   /**
    * Play an action in the inverse direction
    */
-  private static playActionInverse(action: THREE.AnimationAction) {
-    action.timeScale = -1;
+  private static playActionInverse(action: THREE.AnimationAction, timeScale: number) {
+    action.timeScale = -Math.abs(timeScale);
     action.paused = false;
     action.play();
   }
