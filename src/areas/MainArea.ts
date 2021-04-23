@@ -52,7 +52,7 @@ export class MainArea implements AreaState {
   private playerAngle: number; // Angle in radians
 
   constructor() {
-    const generator = new MazeGenerator(9, 9, stringToMaze(Template));
+    const generator = new MazeGenerator(13, 13, stringToMaze(Template));
     this.maze = generator.generateMaze();
 
     // this.maze = stringToMaze(TestMaze);
