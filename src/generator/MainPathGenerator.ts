@@ -24,7 +24,8 @@ export class MainPathGenerator {
   }
 
   /**
-   * Generate the main path, mutates the internal nodes
+   * Generate the main path, mutates the internal nodes.
+   * This method should only be called once!!!
    */
   public generateMainPath(): void {
     // Keep runing and rerunning the algorithm until it actually places all doors
@@ -173,6 +174,9 @@ export class MainPathGenerator {
     return this.hist.pickRandom(this.minDepth, this.minDepth + WINDOW_SIZE, 2 + MAX_RANDOM_PARENT);
   }
 
+  /**
+   * Increase the minimum depth so items are *approximately* uniformly distributed in the maze
+   */
   private shiftMinDepth(): void {
     this.minDepth = Math.max(0, this.minDepth - 1);
   }

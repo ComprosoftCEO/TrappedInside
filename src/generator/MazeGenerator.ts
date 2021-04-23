@@ -1,6 +1,7 @@
 import { MazeObject } from 'areas/MazeObject';
 import { MainPathGenerator } from './MainPathGenerator';
 import { MazeWallsGenerator } from './MazeWallsGenerator';
+import { SidePathsGenerator } from './SidePathsGenerator';
 import { buildTreeNodes, TreeNode } from './TreeNode';
 
 /**
@@ -47,6 +48,11 @@ export class MazeGenerator {
     // Generate the main path in the tree
     const mainPathGenerator = new MainPathGenerator(nodes);
     mainPathGenerator.generateMainPath();
+
+    // Add some side paths to the maze
+    const sidePathsGenerator = new SidePathsGenerator(nodes);
+    sidePathsGenerator.generateSidePaths();
+
     MazeGenerator.loadNodes(objects, nodes);
 
     return objects;

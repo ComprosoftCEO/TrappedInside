@@ -1,4 +1,4 @@
-import { pickRandomArray, randomInt } from 'engine/helpers';
+import { randomInt } from 'engine/helpers';
 import { TreeNode } from './TreeNode';
 
 /**
@@ -31,6 +31,13 @@ export class HistogramSet {
   }
 
   /**
+   * Test if a node exists inside the histogram
+   */
+  public hasNode(node: TreeNode): boolean {
+    return this.vertices.has(node.depth) && this.vertices.get(node.depth).has(node);
+  }
+
+  /**
    * Add a single node to the set, but not all of its children
    */
   public add(node: TreeNode): void {
@@ -51,6 +58,16 @@ export class HistogramSet {
     this.add(node);
     for (const child of node.children) {
       this.addRecursive(child);
+    }
+  }
+
+  /**
+   * Add the node and all of its parents to the set
+   */
+  public addParents(node: TreeNode): void {
+    this.add(node);
+    if (node.parent !== null) {
+      this.addParents(node.parent);
     }
   }
 
@@ -94,7 +111,7 @@ export class HistogramSet {
    * @param maxDepth Maximum depth, inclusive
    * @param minAbsoluteDepth Minimum absolute depth (inclusive) for the node to ensure it has enough parents
    */
-  public pickRandom(minDepth: number, maxDepth: number, minAbsoluteDepth: number): TreeNode | null {
+  public pickRandom(minDepth: number, maxDepth: number, minAbsoluteDepth = 0): TreeNode | null {
     const allNodes = [];
     for (let depth = minDepth; depth <= maxDepth; depth += 1) {
       if (!this.vertices.has(depth)) {
@@ -123,5 +140,17 @@ export class HistogramSet {
     } while (nodeIndex !== startIndex);
 
     return null; // No node found
+  }
+
+  /**
+   * Extract all nodes from this histograpm
+   */
+  public getAllNodes(): TreeNode[] {
+    const allNodes: TreeNode[] = [];
+    for (const entry of this.vertices) {
+      allNodes.push(...entry[1]);
+    }
+
+    return allNodes;
   }
 }
