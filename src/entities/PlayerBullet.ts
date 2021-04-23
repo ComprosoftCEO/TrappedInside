@@ -47,6 +47,7 @@ export class PlayerBullet implements EntityState {
   onStep(): void {
     this.entity.object.translateY(-MOVEMENT_SPEED);
     this.entity.mask.update(this.entity.object);
+    (this.entity.mask as SphereCollisionMask).sphere.radius /= 6;
 
     this.testForWallCollision();
   }

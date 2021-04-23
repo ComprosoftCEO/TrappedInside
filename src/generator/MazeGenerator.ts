@@ -1,4 +1,6 @@
 import { MazeObject } from 'areas/MazeObject';
+import { HistogramSet } from './HistogramSet';
+import { InverseToggleGenerator } from './InverseToggleGenerator';
 import { MainPathGenerator } from './MainPathGenerator';
 import { MazeWallsGenerator } from './MazeWallsGenerator';
 import { SidePathsGenerator } from './SidePathsGenerator';
@@ -12,10 +14,11 @@ export class MazeGenerator {
   public width: number;
   public height: number;
   public centerTemplate: MazeObject[][];
+  public numEnergy = 20;
+  public numDrones = 10;
+  public numRocks = 15;
 
-  // Internal variables for the generator
-  private mazeWidth: number; /* True width of maze objects */
-  private mazeHeight: number; /* True height of maze objects */
+  private emptySpots: HistogramSet;
 
   constructor(width: number, height: number, centerTemplate: MazeObject[][]) {
     this.width = width;
@@ -35,25 +38,43 @@ export class MazeGenerator {
    * Complicated method to actually generate the maze
    */
   public generateMaze(): MazeObject[][] {
+    // First, generate a regular grid maze, but with walls where the template will go
     const generator = new MazeWallsGenerator(this.width, this.height, this.templateWidth, this.templateHeight);
     const walls = generator.generateRandomMaze();
 
-    const objects: MazeObject[][] = walls.map((row) => row.map((col) => (col ? MazeObject.Wall : MazeObject.Empty)));
-    this.fillTemplate(objects);
-
     // Convert the maze walls into a tree
     const [rootRow, rootCol] = this.getRootNode();
-    const nodes = buildTreeNodes(walls, rootRow, rootCol);
+    const root = buildTreeNodes(walls, rootRow, rootCol);
 
-    // Generate the main path in the tree
-    const mainPathGenerator = new MainPathGenerator(nodes);
+    // Generate the main path through the tree
+    const mainPathGenerator = new MainPathGenerator(root);
     mainPathGenerator.generateMainPath();
 
     // Add some side paths to the maze
-    const sidePathsGenerator = new SidePathsGenerator(nodes);
+    const sidePathsGenerator = new SidePathsGenerator(root);
     sidePathsGenerator.generateSidePaths();
 
-    MazeGenerator.loadNodes(objects, nodes);
+    // Also add a few inverse toggle doors to make it fun!
+    const inverseToggleGenerator = new InverseToggleGenerator(root);
+    inverseToggleGenerator.generateInverseToggleDoors();
+
+    // Compute the leftover empty spots in the maze
+    this.emptySpots = new HistogramSet(root);
+    for (const node of this.emptySpots.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        this.emptySpots.remove(node);
+      }
+    }
+
+    // Add the few remaining objects into the maze
+    this.addEnergy();
+    this.addDrones();
+    this.addRocks();
+
+    // Export the walls and trees to the maze object
+    const objects: MazeObject[][] = walls.map((row) => row.map((col) => (col ? MazeObject.Wall : MazeObject.Empty)));
+    this.fillTemplate(objects);
+    MazeGenerator.loadNodes(objects, root);
 
     return objects;
   }
@@ -130,6 +151,50 @@ export class MazeGenerator {
       for (let col = leftCol; col < rightCol; col += 1) {
         objects[row][col] = this.centerTemplate[row - topRow][col - leftCol];
       }
+    }
+  }
+
+  /**
+   * Add all of the energy balls to the maze.
+   * They have the highest priority!
+   */
+  private addEnergy(): void {
+    for (let i = 0; i < this.numEnergy; i += 1) {
+      const node = this.emptySpots.pickAnyRandom();
+      if (node === null) {
+        return; /* None left */
+      }
+      this.emptySpots.remove(node);
+      node.object = MazeObject.Energy;
+    }
+  }
+
+  /**
+   * Add all of the drones to the maze.
+   */
+  private addDrones(): void {
+    for (let i = 0; i < this.numDrones; i += 1) {
+      const node = this.emptySpots.pickAnyRandom();
+      if (node === null) {
+        return; /* None left */
+      }
+      this.emptySpots.remove(node);
+      node.object = MazeObject.Drone;
+    }
+  }
+
+  /**
+   * Add all of the rocks to the maze.
+   * They have the lowest priority!
+   */
+  private addRocks(): void {
+    for (let i = 0; i < this.numRocks; i += 1) {
+      const node = this.emptySpots.pickAnyRandom();
+      if (node === null) {
+        return; /* None left */
+      }
+      this.emptySpots.remove(node);
+      node.object = MazeObject.Rock;
     }
   }
 

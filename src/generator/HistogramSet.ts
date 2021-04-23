@@ -84,6 +84,15 @@ export class HistogramSet {
   }
 
   /**
+   * Remove an iterable set of nodes from the set
+   */
+  public removeAll(nodes: Iterable<TreeNode>): void {
+    for (const node of nodes) {
+      this.remove(node);
+    }
+  }
+
+  /**
    * Remove a node and all of its children from the set
    */
   public removeRecursive(node: TreeNode): void {
@@ -101,6 +110,13 @@ export class HistogramSet {
     if (node.parent !== null) {
       this.removeParents(node.parent);
     }
+  }
+
+  /**
+   * Pick any random node in the histogram
+   */
+  public pickAnyRandom(): TreeNode | null {
+    return this.pickRandom(0, this.highestDepth);
   }
 
   /**

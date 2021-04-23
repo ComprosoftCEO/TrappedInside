@@ -7,7 +7,7 @@ import { DroneBullet } from 'entities/DroneBullet';
 import { Explosion } from './Explosion';
 import * as THREE from 'three';
 
-const HEALTH = 60;
+const HEALTH = 30;
 const MAX_RANGE = 40;
 const MOVEMENT_SPEED = 0.1;
 const ROTATION_SPEED = Math.PI / 64;
