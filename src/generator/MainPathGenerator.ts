@@ -2,6 +2,7 @@ import { ALL_MAIN_DOORS, DOOR_ITEMS, MazeObject } from 'areas/MazeObject';
 import { pickRandomArray, randomInt } from 'engine/helpers';
 import { HistogramSet } from './HistogramSet';
 import { TreeNode } from './TreeNode';
+import { VertexSet } from './VertexSet';
 
 const WINDOW_SIZE = 5;
 const MIN_RANDOM_PARENT = 3;
@@ -74,6 +75,7 @@ export class MainPathGenerator {
     let randomDoor = pickRandomArray(Array.from(this.doorsLeft));
     this.doorsLeft.delete(randomDoor);
     doorLocation.object = randomDoor;
+    MainPathGenerator.putEnergyBehind(doorLocation);
 
     // 3. Find the items needed for the door
     this.computeItemsNeeded(randomDoor);
@@ -192,6 +194,24 @@ export class MainPathGenerator {
     if (typeof itemsNeeded.reuseItem !== 'undefined' && !this.itemsReused.has(itemsNeeded.reuseItem)) {
       this.itemsNeeded.push(itemsNeeded.reuseItem);
       this.itemsReused.add(itemsNeeded.reuseItem);
+    }
+  }
+
+  /**
+   * Add an energy orb to a random child of the door node
+   */
+  private static putEnergyBehind(doorNode: TreeNode): void {
+    const availableNodes = new VertexSet(doorNode);
+    availableNodes.remove(doorNode);
+    for (const node of availableNodes.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        availableNodes.remove(node);
+      }
+    }
+
+    const energyLocation = availableNodes.pickAnyRandom();
+    if (energyLocation !== null) {
+      energyLocation.object = MazeObject.Energy;
     }
   }
 }

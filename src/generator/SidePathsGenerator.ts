@@ -2,6 +2,7 @@ import { ALL_MAIN_DOORS, DOOR_ITEMS, MazeObject } from 'areas/MazeObject';
 import { pickRandomArray } from 'engine/helpers';
 import { HistogramSet } from './HistogramSet';
 import { TreeNode } from './TreeNode';
+import { VertexSet } from './VertexSet';
 
 const ITEM_NODES = new Set([
   MazeObject.RedKey,
@@ -86,8 +87,10 @@ export class SidePathsGenerator {
     this.sideNodes.removeRecursive(doorLocation);
 
     // 2. Pick a random type for the door
+    //  Also put an energy object behind the door
     const doorType = pickRandomArray(ALL_MAIN_DOORS);
     doorLocation.object = doorType;
+    SidePathsGenerator.putEnergyBehind(doorLocation);
 
     // 3. Get the items needed to open the doors
     //  The previous step already added all reusable items, so this step can be skipped
@@ -139,5 +142,25 @@ export class SidePathsGenerator {
    */
   private shiftMinDepth(): void {
     this.minDepth = Math.max(0, this.minDepth - 1);
+  }
+
+  /**
+   * Add an energy orb to a random child of the door node
+   */
+  private static putEnergyBehind(doorNode: TreeNode): void {
+    // Find available slots behind the door
+    const availableNodes = new VertexSet(doorNode);
+    availableNodes.remove(doorNode);
+    for (const node of availableNodes.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        // Don't put two behind the same door
+        availableNodes.removeRecursive(node);
+      }
+    }
+
+    const energyLocation = availableNodes.pickAnyRandom();
+    if (energyLocation !== null) {
+      energyLocation.object = MazeObject.Energy;
+    }
   }
 }

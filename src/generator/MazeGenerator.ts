@@ -1,10 +1,10 @@
 import { MazeObject } from 'areas/MazeObject';
-import { HistogramSet } from './HistogramSet';
 import { InverseToggleGenerator } from './InverseToggleGenerator';
 import { MainPathGenerator } from './MainPathGenerator';
 import { MazeWallsGenerator } from './MazeWallsGenerator';
 import { SidePathsGenerator } from './SidePathsGenerator';
 import { buildTreeNodes, TreeNode } from './TreeNode';
+import { VertexSet } from './VertexSet';
 
 /**
  * Procedural algorithm to generate random mazes
@@ -18,7 +18,8 @@ export class MazeGenerator {
   public numDrones = 10;
   public numRocks = 15;
 
-  private emptySpots: HistogramSet;
+  private emptySpots: VertexSet;
+  private energySpots: VertexSet;
 
   constructor(width: number, height: number, centerTemplate: MazeObject[][]) {
     this.width = width;
@@ -58,16 +59,9 @@ export class MazeGenerator {
     const inverseToggleGenerator = new InverseToggleGenerator(root);
     inverseToggleGenerator.generateInverseToggleDoors();
 
-    // Compute the leftover empty spots in the maze
-    this.emptySpots = new HistogramSet(root);
-    for (const node of this.emptySpots.getAllNodes()) {
-      if (node.object !== MazeObject.Empty) {
-        this.emptySpots.remove(node);
-      }
-    }
-
     // Add the few remaining objects into the maze
-    this.addEnergy();
+    this.computeEmptySpots(root);
+    this.addOrRemoveEnergy();
     this.addDrones();
     this.addRocks();
 
@@ -155,17 +149,51 @@ export class MazeGenerator {
   }
 
   /**
-   * Add all of the energy balls to the maze.
+   * Compute the number of empty spots in the maze
+   */
+  private computeEmptySpots(root: TreeNode): void {
+    this.emptySpots = new VertexSet(root);
+    this.energySpots = new VertexSet();
+    for (const node of this.emptySpots.getAllNodes()) {
+      // Count the total number of energy
+      if (node.object === MazeObject.Energy) {
+        this.energySpots.add(node);
+      }
+
+      // Remove non-empty objects
+      if (node.object !== MazeObject.Empty) {
+        this.emptySpots.remove(node);
+      }
+    }
+  }
+
+  /**
+   * Add all of the energy balls to the maze, or randomly remove existing ones.
    * They have the highest priority!
    */
-  private addEnergy(): void {
-    for (let i = 0; i < this.numEnergy; i += 1) {
-      const node = this.emptySpots.pickAnyRandom();
-      if (node === null) {
-        return; /* None left */
+  private addOrRemoveEnergy(): void {
+    if (this.energySpots.size > this.numEnergy) {
+      // Remove extra energy from the maze
+      while (this.energySpots.size > this.numEnergy) {
+        const toRemove = this.energySpots.pickAnyRandom();
+        if (toRemove === null) {
+          return;
+        }
+        this.energySpots.remove(toRemove);
+        toRemove.object = MazeObject.Empty;
+        this.emptySpots.add(toRemove);
       }
-      this.emptySpots.remove(node);
-      node.object = MazeObject.Energy;
+    } else {
+      // Add the needed energy to the maze
+      while (this.energySpots.size < this.numEnergy) {
+        const node = this.emptySpots.pickAnyRandom();
+        if (node === null) {
+          return; /* None left */
+        }
+        this.emptySpots.remove(node);
+        node.object = MazeObject.Energy;
+        this.energySpots.add(node);
+      }
     }
   }
 

@@ -1,10 +1,11 @@
 import { randomInt } from 'engine/helpers';
+import { AbstractSet } from './AbstractSet';
 import { TreeNode } from './TreeNode';
 
 /**
  * Stores a set of vertices, and can find random vertices based on their depth
  */
-export class HistogramSet {
+export class HistogramSet extends AbstractSet {
   /// Maps the depth to all vertices at that depth
   private vertices: Map<number, Set<TreeNode>> = new Map();
 
@@ -17,6 +18,7 @@ export class HistogramSet {
    * @param rootNode If provided, adds the node AND all of its children to the set
    */
   constructor(rootNode?: TreeNode) {
+    super();
     if (typeof rootNode !== 'undefined') {
       this.addRecursive(rootNode);
     }
@@ -52,26 +54,6 @@ export class HistogramSet {
   }
 
   /**
-   * Add the node and all of its children to the set
-   */
-  public addRecursive(node: TreeNode): void {
-    this.add(node);
-    for (const child of node.children) {
-      this.addRecursive(child);
-    }
-  }
-
-  /**
-   * Add the node and all of its parents to the set
-   */
-  public addParents(node: TreeNode): void {
-    this.add(node);
-    if (node.parent !== null) {
-      this.addParents(node.parent);
-    }
-  }
-
-  /**
    * Remove a single node from the set, but not all of its children
    */
   public remove(node: TreeNode): void {
@@ -81,42 +63,6 @@ export class HistogramSet {
 
     const set = this.vertices.get(node.depth);
     set.delete(node);
-  }
-
-  /**
-   * Remove an iterable set of nodes from the set
-   */
-  public removeAll(nodes: Iterable<TreeNode>): void {
-    for (const node of nodes) {
-      this.remove(node);
-    }
-  }
-
-  /**
-   * Remove a node and all of its children from the set
-   */
-  public removeRecursive(node: TreeNode): void {
-    this.remove(node);
-    for (const child of node.children) {
-      this.removeRecursive(child);
-    }
-  }
-
-  /**
-   * Remove a node and all of its parents from the set
-   */
-  public removeParents(node: TreeNode): void {
-    this.remove(node);
-    if (node.parent !== null) {
-      this.removeParents(node.parent);
-    }
-  }
-
-  /**
-   * Pick any random node in the histogram
-   */
-  public pickAnyRandom(): TreeNode | null {
-    return this.pickRandom(0, this.highestDepth);
   }
 
   /**
@@ -156,6 +102,17 @@ export class HistogramSet {
     } while (nodeIndex !== startIndex);
 
     return null; // No node found
+  }
+
+  /**
+   * Get the size of this set
+   */
+  public get size(): number {
+    let total = 0;
+    for (const [_, set] of this.vertices) {
+      total += set.size;
+    }
+    return total;
   }
 
   /**

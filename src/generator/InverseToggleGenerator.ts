@@ -1,6 +1,6 @@
 import { MazeObject } from 'areas/MazeObject';
-import { HistogramSet } from './HistogramSet';
 import { TreeNode } from './TreeNode';
+import { VertexSet } from './VertexSet';
 
 /**
  * Adds a few random inverse toggle doors to the maze
@@ -11,7 +11,7 @@ export class InverseToggleGenerator {
 
   private lever: TreeNode;
   private regularToggleDoors: Set<TreeNode> = new Set();
-  private allowdSpots: HistogramSet;
+  private allowdSpots: VertexSet;
 
   constructor(root: TreeNode) {
     this.root = root;
@@ -23,7 +23,7 @@ export class InverseToggleGenerator {
   public generateInverseToggleDoors(): void {
     this.findToggleDoors(this.root);
     this.maxDoors = this.regularToggleDoors.size;
-    this.allowdSpots = new HistogramSet(this.root);
+    this.allowdSpots = new VertexSet(this.root);
 
     // Remove all paths connecting the lever to each toggle door
     for (const toggleDoor of this.regularToggleDoors) {
