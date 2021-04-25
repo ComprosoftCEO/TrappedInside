@@ -600,7 +600,10 @@ function mapDrawPortal(): DrawFunction {
 
     g2d.fillRect(x - (2 * TILE_SIZE_PX) / 3, y + TILE_SIZE_PX / 4, (7 * TILE_SIZE_PX) / 3, TILE_SIZE_PX / 2);
 
-    const iconImage = entity.area.game.assets.getImage('Energy');
-    g2d.drawImage(iconImage, x + TILE_SIZE_PX / 4, y + TILE_SIZE_PX / 4, TILE_SIZE_PX / 2, TILE_SIZE_PX / 2);
+    // Only draw the energy on top once activated
+    if (mainArea.energyLeft === 0) {
+      const iconImage = entity.area.game.assets.getImage('Energy');
+      g2d.drawImage(iconImage, x + TILE_SIZE_PX / 4, y + TILE_SIZE_PX / 4, TILE_SIZE_PX / 2, TILE_SIZE_PX / 2);
+    }
   };
 }

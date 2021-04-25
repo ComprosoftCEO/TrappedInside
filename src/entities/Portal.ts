@@ -4,6 +4,9 @@ import { Entity, EntityState } from 'engine/entity';
 import { HUD } from './HUD';
 import * as THREE from 'three';
 
+const OFF_COLOR = 0x323232;
+const ON_COLOR = 0xcc4300;
+
 /**
  * Portal Exit
  */
@@ -18,6 +21,7 @@ export class Portal implements EntityState {
   private interactMask: SphereCollisionMask;
   private exitMask: BoxCollisionMask;
   private portalObject: THREE.Object3D;
+  private ballMat: THREE.MeshStandardMaterial;
 
   // Animations
   private mixer: THREE.AnimationMixer;
@@ -43,6 +47,8 @@ export class Portal implements EntityState {
     this.entity.object = object;
     this.portalObject = object.children[2];
     this.portalObject.visible = false;
+    this.ballMat = (object.children[4] as THREE.Mesh).material as THREE.MeshStandardMaterial;
+    this.ballMat.color.set(OFF_COLOR);
 
     // Build collision masks
     const leftMask = new BoxCollisionMask(object.children[1]);
@@ -77,6 +83,7 @@ export class Portal implements EntityState {
     const mainArea = this.entity.area.state as MainArea;
     if (mainArea.energyLeft === 0) {
       this.portalObject.visible = true;
+      this.ballMat.color.set(ON_COLOR);
       this.portalAction.play();
     }
   }
