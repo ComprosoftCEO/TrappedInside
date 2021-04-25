@@ -31,6 +31,11 @@ export class InverseToggleGenerator {
       this.allowdSpots.removeAll(path);
     }
 
+    // Remove any children of the toggle doors
+    for (const toggleDoor of this.regularToggleDoors) {
+      this.allowdSpots.removeRecursive(toggleDoor);
+    }
+
     // Remove all non-doors
     for (const spot of this.allowdSpots.getAllNodes()) {
       if (spot.row % 2 !== 0 && spot.column % 2 !== 0) {
