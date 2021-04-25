@@ -1,6 +1,6 @@
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { Key } from 'engine/input';
+import { GamepadButton, Key } from 'engine/input';
 import { DoorColor } from './DoorColor';
 import { HUD } from './HUD';
 import { Inventory } from 'resources/Inventory';
@@ -81,7 +81,7 @@ export class ColorDoor extends AbstractDoor implements EntityState {
 
     // Test for the actual action
     const input = this.entity.area.game.input;
-    if (input.isKeyStarted(Key.E) && keyAvailable) {
+    if ((input.isKeyStarted(Key.E) || input.isGamepadButtonStarted(0, GamepadButton.XSquare)) && keyAvailable) {
       // Use the key
       inventory.useKey(this.doorColor);
       this.openDoor();

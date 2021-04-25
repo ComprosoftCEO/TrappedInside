@@ -1,5 +1,5 @@
 import { Entity, EntityState } from 'engine/entity';
-import { Key, MouseButton } from 'engine/input';
+import { GamepadAxis, GamepadButton, Key, MouseButton } from 'engine/input';
 import { clamp, wrapNumber } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
@@ -9,8 +9,11 @@ import { Health } from 'resources/Health';
 import { PlayerBullet } from './PlayerBullet';
 
 const ROTATION_SPEED = 0.002;
+const GAMEPAD_ROTATION_SPEED = 0.02;
+const SLOW_GAMEPAD_ROTATION_SPEED = 0.01;
 const MOVEMENT_SPEED = 0.1;
 const MAX_VERT_ANGLE = 0.75 * (Math.PI / 2);
+const DEAD_ZONE = 0.5;
 
 const PLAYER_BOX3_MASK = new THREE.Box3(new THREE.Vector3(-0.5, 0, -0.5), new THREE.Vector3(0.5, 3, 0.5));
 
@@ -30,6 +33,7 @@ export class Player implements EntityState {
 
   private horDir = Math.PI / 2;
   private vertDir = 0;
+  private rightTriggerPressed = false;
 
   constructor(startRow: number, startCol: number) {
     this.startRow = startRow;
@@ -106,23 +110,46 @@ export class Player implements EntityState {
   private handleInput(): void {
     const input = this.entity.area.game.input;
 
-    // Test for camera spin
+    // Test for mouse camera spin
     const mouseX = input.getMouseMovementX();
     if (Math.abs(mouseX) > 2) {
       this.horDir += -mouseX * ROTATION_SPEED;
     }
 
-    // Test for camera vertical up-down
+    // Test for mouse camera vertical up-down
     const mouseY = input.getMouseMovementY();
     if (Math.abs(mouseY) > 2) {
       this.vertDir += -mouseY * ROTATION_SPEED;
       this.vertDir = clamp(this.vertDir, -MAX_VERT_ANGLE, MAX_VERT_ANGLE);
     }
 
+    // Left trigger is used for slow motion
+    const slowControllerRotation: boolean = input.getGamepadAxis(0, GamepadAxis.LeftTrigger) > DEAD_ZONE;
+    const controllerRotation = slowControllerRotation ? SLOW_GAMEPAD_ROTATION_SPEED : GAMEPAD_ROTATION_SPEED;
+    if (slowControllerRotation) {
+      this.camera.fov = 45;
+    } else {
+      this.camera.fov = 50;
+    }
+
+    // Handle gamepad spin
+    const controllerX = input.getGamepadAxis(0, GamepadAxis.RightStickX);
+    if (Math.abs(controllerX) > DEAD_ZONE) {
+      this.horDir += -controllerX * 1.5 * controllerRotation;
+    }
+
+    // Handle gamepad vertical up-down
+    const controllerY = input.getGamepadAxis(0, GamepadAxis.RightStickY);
+    if (Math.abs(controllerY) > DEAD_ZONE) {
+      this.vertDir += -controllerY * controllerRotation;
+      this.vertDir = clamp(this.vertDir, -MAX_VERT_ANGLE, MAX_VERT_ANGLE);
+    }
+
     this.updateCameraRotation();
 
-    // X = Forward (+) and Back (-)
-    // Z = Left (-) and Right (+)
+    // Handle normal WSAD controls
+    //   X = Forward (+) and Back (-)
+    //   Z = Left (-) and Right (+)
     let deltaX = 0,
       deltaZ = 0;
     if (input.isKeyDown(Key.W)) {
@@ -138,9 +165,28 @@ export class Player implements EntityState {
       deltaZ -= MOVEMENT_SPEED;
     }
 
+    // Test for the angle of the left joystick
+    const posX = input.getGamepadAxis(0, GamepadAxis.LeftStickX);
+    const posY = -input.getGamepadAxis(0, GamepadAxis.LeftStickY);
+
+    // Make sure left joystick is outside of the "dead" zone
+    if (posX < -DEAD_ZONE || posX > DEAD_ZONE || posY < -DEAD_ZONE || posY > DEAD_ZONE) {
+      const rotationAngle = Math.atan2(posY, posX);
+      deltaX = MOVEMENT_SPEED * Math.sin(rotationAngle);
+      deltaZ = -MOVEMENT_SPEED * Math.cos(rotationAngle);
+    }
+
     this.updatePosition(deltaX, deltaZ);
 
-    if (input.isMouseButtonStarted(MouseButton.Left)) {
+    // Shoot gun!
+    const rightTriggerPressed = input.getGamepadAxis(0, GamepadAxis.RightTrigger) > DEAD_ZONE;
+    const rightTriggerStarted = !this.rightTriggerPressed && rightTriggerPressed;
+    this.rightTriggerPressed = rightTriggerPressed;
+    if (
+      input.isMouseButtonStarted(MouseButton.Left) ||
+      input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
+      rightTriggerStarted
+    ) {
       const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
       this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));
     }

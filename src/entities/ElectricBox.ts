@@ -3,7 +3,7 @@ import { BoxCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { ElectricBoxType } from './ElectricBoxType';
 import * as THREE from 'three';
-import { Key } from 'engine/input';
+import { GamepadButton, Key } from 'engine/input';
 import { HUD } from './HUD';
 import { Inventory } from 'resources/Inventory';
 import { DoorState } from 'resources/DoorState';
@@ -129,7 +129,7 @@ export class ElectricBox implements EntityState {
    */
   private checkInteractionInput(): void {
     const input = this.entity.area.game.input;
-    if (input.isKeyStarted(Key.E)) {
+    if (input.isKeyStarted(Key.E) || input.isGamepadButtonStarted(0, GamepadButton.XSquare)) {
       const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
       if (this.hasBattery) {
         // Stop spinning the wheel

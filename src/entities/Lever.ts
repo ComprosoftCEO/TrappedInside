@@ -1,7 +1,7 @@
 import { MainArea } from 'areas/MainArea';
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { Key } from 'engine/input';
+import { GamepadButton, Key } from 'engine/input';
 import { HUD } from './HUD';
 import * as THREE from 'three';
 import { DoorState } from 'resources/DoorState';
@@ -85,7 +85,7 @@ export class Lever implements EntityState {
    */
   private checkInteractionInput(): void {
     const input = this.entity.area.game.input;
-    if (input.isKeyStarted(Key.E)) {
+    if (input.isKeyStarted(Key.E) || input.isGamepadButtonStarted(0, GamepadButton.XSquare)) {
       if (this.open) {
         this.closeLever();
       } else {

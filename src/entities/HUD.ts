@@ -2,7 +2,7 @@ import { MainArea } from 'areas/MainArea';
 import { MazeObject } from 'areas/MazeObject';
 import { Entity, EntityState } from 'engine/entity';
 import { clamp } from 'engine/helpers';
-import { Key } from 'engine/input';
+import { GamepadButton, Key } from 'engine/input';
 import { Health } from 'resources/Health';
 import { Inventory } from 'resources/Inventory';
 import { DoorColor } from './DoorColor';
@@ -113,7 +113,12 @@ export class HUD implements EntityState {
 
   onStep(): void {
     this.updateVisited();
-    this.shouldDrawMap = this.entity.area.game.input.isKeyDown(Key.Space);
+
+    const input = this.entity.area.game.input;
+    this.shouldDrawMap =
+      input.isKeyDown(Key.Space) ||
+      input.isGamepadButtonDown(0, GamepadButton.LeftBumper) ||
+      input.isGamepadButtonDown(0, GamepadButton.YTriangle);
   }
 
   /**
