@@ -16,6 +16,8 @@ const ITEM_NODES = new Set([
   MazeObject.CBox,
 ]);
 
+const COLORED_DOORS = new Set([MazeObject.RedDoor, MazeObject.YellowDoor, MazeObject.GreenDoor, MazeObject.BlueDoor]);
+
 const WINDOW_SIZE = 2;
 
 /**
@@ -25,8 +27,11 @@ export class SidePathsGenerator {
   private root: TreeNode;
 
   private mainNodes: HistogramSet;
-  private sideNodes: HistogramSet;
+  private sideNodeDoors: HistogramSet; /* Only stores doors */
   private minDepth: number;
+
+  // Find the colored door instances (Special case)
+  private coloredDoor: Map<MazeObject, TreeNode> = new Map();
 
   constructor(root: TreeNode) {
     this.root = root;
@@ -38,22 +43,10 @@ export class SidePathsGenerator {
    */
   public generateSidePaths(): void {
     this.mainNodes = new HistogramSet();
-    this.sideNodes = new HistogramSet(this.root);
+    this.sideNodeDoors = new HistogramSet(this.root);
 
     this.processItemNodes(this.root);
-    this.minDepth = Math.max(0, this.sideNodes.highestDepth - Math.floor(WINDOW_SIZE / 2));
-
-    // Make sure none of the main nodes and side nodes already have items
-    for (const node of this.sideNodes.getAllNodes()) {
-      if (node.object !== MazeObject.Empty) {
-        this.sideNodes.remove(node);
-      }
-    }
-    for (const node of this.mainNodes.getAllNodes()) {
-      if (node.object !== MazeObject.Empty) {
-        this.mainNodes.remove(node);
-      }
-    }
+    this.minDepth = Math.max(0, this.sideNodeDoors.highestDepth - Math.floor(WINDOW_SIZE / 2));
 
     do {
       this.addSingleRandomDoor();
@@ -65,13 +58,45 @@ export class SidePathsGenerator {
    * Compute the nodes on the main path and on the sub paths
    */
   private processItemNodes(node: TreeNode): void {
-    if (ITEM_NODES.has(node.object)) {
-      this.mainNodes.addParents(node);
-      this.sideNodes.removeParents(node);
+    this.loadItemNodesRecursive(node);
+
+    // Remove any items from the main nodes
+    for (const node of this.mainNodes.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        this.mainNodes.remove(node);
+      }
     }
 
+    // Remove any non-doors and leftover items from the side nodes
+    for (const node of this.sideNodeDoors.getAllNodes()) {
+      if (node.object !== MazeObject.Empty) {
+        this.sideNodeDoors.remove(node);
+      }
+      if (node.row % 2 !== 0 && node.column % 2 !== 0) {
+        this.sideNodeDoors.remove(node);
+      }
+    }
+  }
+
+  /**
+   * Recursively load all item nodes into the maze
+   */
+  private loadItemNodesRecursive(node: TreeNode): void {
+    // The main path is defined by all item nodes to the root
+    if (ITEM_NODES.has(node.object)) {
+      this.mainNodes.addParents(node);
+      this.sideNodeDoors.removeParents(node);
+    }
+
+    // Handle the colored doors
+    //  There should only be one of each colored door in the main path
+    if (COLORED_DOORS.has(node.object)) {
+      this.coloredDoor.set(node.object, node);
+    }
+
+    // Recurse!
     for (const child of node.children) {
-      this.processItemNodes(child);
+      this.loadItemNodesRecursive(child);
     }
   }
 
@@ -79,16 +104,18 @@ export class SidePathsGenerator {
    * Add a single random door into the maze.
    */
   private addSingleRandomDoor(): void {
-    // 1. Pick a random location for the door, or abort on failure
-    const doorLocation = this.pickRandomDoorLocation();
+    // 1. Pick a random type for the door
+    const doorType = pickRandomArray(ALL_MAIN_DOORS);
+
+    // 2. Pick a random location for the door, or abort on failure
+    //  Handles a special case for colored doors
+    //  Also put an energy object behind the door
+    const doorLocation = this.pickRandomDoorLocation(this.coloredDoor.get(doorType));
     if (doorLocation === null) {
       return; // No door found, abort!
     }
-    this.sideNodes.removeRecursive(doorLocation);
+    this.sideNodeDoors.removeRecursive(doorLocation);
 
-    // 2. Pick a random type for the door
-    //  Also put an energy object behind the door
-    const doorType = pickRandomArray(ALL_MAIN_DOORS);
     doorLocation.object = doorType;
     SidePathsGenerator.putEnergyBehind(doorLocation);
 
@@ -113,28 +140,43 @@ export class SidePathsGenerator {
   /**
    * Doors can only go in specific locations
    */
-  private pickRandomDoorLocation(): TreeNode | null {
+  private pickRandomDoorLocation(parent?: TreeNode): TreeNode | null {
     // Only try a fixed number of times before giving up
     for (let i = 0; i < 10; i += 1) {
-      const location = this.sideNodes.pickRandom(this.minDepth, this.minDepth + WINDOW_SIZE, 2);
+      const location = this.sideNodeDoors.pickRandom(this.minDepth, this.minDepth + WINDOW_SIZE, 2);
       if (location === null) {
         return null;
       }
 
-      // Make sure this is a valid door node
-      if (location.row % 2 !== 0 && location.column % 2 !== 0) {
-        // Make sure the parent is still a valid side node
-        if (this.sideNodes.hasNode(location.parent)) {
-          return location.parent;
-        } else {
-          continue; // Okay, try again
-        }
-      } else {
-        return location;
+      // Special case:
+      //   For colored doors, the colored door in the main path must be the parent
+      //   Otherwise, the colored key could open the side door and make the maze impossible
+      if (typeof parent !== 'undefined' && !SidePathsGenerator.isParentOf(parent, location)) {
+        continue;
       }
+
+      return location;
     }
 
     return null;
+  }
+
+  /**
+   * Test if a node is the parent of the other node
+   *
+   * @param parent Expected parent node
+   * @param node Node being tested
+   */
+  private static isParentOf(parent: TreeNode, node: TreeNode): boolean {
+    let tempParent = node.parent;
+    while (tempParent !== null) {
+      if (tempParent === parent) {
+        return true;
+      }
+      tempParent = tempParent.parent;
+    }
+
+    return false;
   }
 
   /**
