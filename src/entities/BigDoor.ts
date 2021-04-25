@@ -1,14 +1,17 @@
 import { SCALE_HEIGHT } from 'areas/MainArea';
 import { EntityState } from 'engine/entity';
-import { Key } from 'engine/input';
 import { DoorState } from 'resources/DoorState';
+import { Inventory } from 'resources/Inventory';
 import { AbstractDoor } from './AbstractDoor';
+import { HUD } from './HUD';
 
 /**
  * Door object in the maze
  */
 export class BigDoor extends AbstractDoor implements EntityState {
   public readonly tags: string[] = ['wall'];
+
+  private showMessage = false;
 
   constructor(row: number, column: number) {
     super(row, column, 'Door');
@@ -24,8 +27,27 @@ export class BigDoor extends AbstractDoor implements EntityState {
   onDestroy(): void {}
 
   onStepDoor(): void {
-    /// TODO: Implement this action
-    if (this.entity.area.game.input.isKeyStarted(Key.O) && !this.open) {
+    this.testIfAllItemsCollected();
+
+    // Draw the message when the game first starts
+    if (this.showMessage) {
+      const hud = this.entity.area.findFirstEntity('hud');
+      if (hud !== null) {
+        (hud.state as HUD).message = 'Collect all energy to activate the portal!';
+      }
+    }
+  }
+
+  /**
+   * Open the big door once all of the items have been collected
+   */
+  private testIfAllItemsCollected() {
+    if (this.open) {
+      return;
+    }
+
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    if (inventory.hasCollectedGun() && inventory.hasCollectedMap()) {
       this.openBigDoor();
     }
   }
@@ -37,9 +59,17 @@ export class BigDoor extends AbstractDoor implements EntityState {
     const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
     state.openBigDoor();
     this.openDoor(1 / 6);
+
+    // Hide the message after a given number of ticks
+    this.showMessage = true;
+    this.entity.setTimer(0, 400, false);
   }
 
-  onTimer(_timerIndex: number): void {}
+  onTimer(timerIndex: number): void {
+    if (timerIndex === 0) {
+      this.showMessage = false;
+    }
+  }
 
   onDraw(_g2d: CanvasRenderingContext2D): void {}
 }

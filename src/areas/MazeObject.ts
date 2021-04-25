@@ -26,6 +26,8 @@ export enum MazeObject {
   Drone,
   BigDoor,
   Portal,
+  Map,
+  Gun,
 }
 
 /// List of main doors used by the generator
@@ -85,6 +87,8 @@ const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   ['d']: MazeObject.Drone,
   ['n']: MazeObject.BigDoor,
   ['P']: MazeObject.Portal,
+  ['m']: MazeObject.Map,
+  ['%']: MazeObject.Gun,
 };
 
 /**

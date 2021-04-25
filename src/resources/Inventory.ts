@@ -4,6 +4,9 @@ import { DoorColor } from 'entities/DoorColor';
  * Stores information about the in-game inventory
  */
 export class Inventory {
+  private mapCollected = false;
+  private gunCollected = false;
+
   private keysCollected: Record<DoorColor, number> = {
     [DoorColor.Red]: 0,
     [DoorColor.Yellow]: 0,
@@ -12,6 +15,22 @@ export class Inventory {
   };
 
   private batteryCollected = 0;
+
+  public collectMap(): void {
+    this.mapCollected = true;
+  }
+
+  public hasCollectedMap(): boolean {
+    return this.mapCollected;
+  }
+
+  public collectGun(): void {
+    this.gunCollected = true;
+  }
+
+  public hasCollectedGun(): boolean {
+    return this.gunCollected;
+  }
 
   public collectKey(color: DoorColor): void {
     this.keysCollected[color] += 1;

@@ -7,6 +7,7 @@ import { MainArea } from 'areas/MainArea';
 import { DeathAnimation } from './DeathAnimation';
 import { Health } from 'resources/Health';
 import { PlayerBullet } from './PlayerBullet';
+import { Inventory } from 'resources/Inventory';
 
 const ROTATION_SPEED = 0.002;
 const GAMEPAD_ROTATION_SPEED = 0.02;
@@ -27,6 +28,7 @@ export class Player implements EntityState {
   private mask: BoxCollisionMask;
   private camera: THREE.PerspectiveCamera;
   private gun: THREE.Object3D;
+  private gunCollected = false;
 
   private startRow: number;
   private startCol: number;
@@ -68,6 +70,7 @@ export class Player implements EntityState {
     gun.scale.set(0.1, 0.1, 0.1);
     gun.position.set(0.15, -0.04, 0.05);
     gun.rotation.y = Math.atan2(Infinity, 1.8);
+    gun.visible = false;
     this.camera.add(gun);
     this.gun = gun;
 
@@ -97,11 +100,29 @@ export class Player implements EntityState {
     this.camera.aspect = this.entity.area.game.canvasWidth / this.entity.area.game.canvasHeight;
     this.camera.updateProjectionMatrix();
 
+    // Cannot shoot until gun is collected
+    this.testForGunCollected();
+
     // Move the player
     this.handleInput();
 
     // Test for death
     this.testForDeath();
+  }
+
+  /**
+   * Test if the gun has been collected yet
+   */
+  private testForGunCollected(): void {
+    if (this.gunCollected) {
+      return;
+    }
+
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    if (inventory.hasCollectedGun()) {
+      this.gunCollected = true;
+      this.gun.visible = true;
+    }
   }
 
   /**
@@ -183,9 +204,10 @@ export class Player implements EntityState {
     const rightTriggerStarted = !this.rightTriggerPressed && rightTriggerPressed;
     this.rightTriggerPressed = rightTriggerPressed;
     if (
-      input.isMouseButtonStarted(MouseButton.Left) ||
-      input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
-      rightTriggerStarted
+      this.gunCollected &&
+      (input.isMouseButtonStarted(MouseButton.Left) ||
+        input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
+        rightTriggerStarted)
     ) {
       const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
       this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));

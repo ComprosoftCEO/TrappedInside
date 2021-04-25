@@ -29,6 +29,7 @@ import ElectricBox from 'assets/objects/ElectricBox.glb';
 import Rock from 'assets/objects/Rock.glb';
 import Drone from 'assets/objects/Drone.glb';
 import Gun from 'assets/objects/Gun.glb';
+import MazeMap from 'assets/objects/Map.glb';
 import Explosion from 'assets/objects/Explosion.glb';
 import Portal from 'assets/objects/Portal.glb';
 
@@ -42,6 +43,8 @@ import BatteryIcon from 'assets/images/Battery.png';
 import LeverIcon from 'assets/images/Lever.png';
 import LeverReverseIcon from 'assets/images/LeverReverse.png';
 import ElectricBoxIcon from 'assets/images/ElectricBox.png';
+import GunIcon from 'assets/images/Gun.png';
+import MapIcon from 'assets/images/Map.png';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -148,6 +151,9 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadGLTFFile(Gun, (glb, manager) => {
       manager.saveObject('Gun', glb.scene);
     }),
+    game.assets.loadGLTFFile(MazeMap, (glb, manager) => {
+      manager.saveObject('Map', glb.scene.children[0]);
+    }),
     game.assets.loadGLTFFile(Explosion, (glb, manager) => {
       const explosion = glb.scene.children[0] as THREE.Mesh;
       manager.saveObject('Explosion', explosion);
@@ -177,6 +183,8 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('Lever', LeverIcon),
     game.assets.loadImage('LeverReverse', LeverReverseIcon),
     game.assets.loadImage('ElectricBox', ElectricBoxIcon),
+    game.assets.loadImage('Gun', GunIcon),
+    game.assets.loadImage('Map', MapIcon),
   ]);
 
   return game;

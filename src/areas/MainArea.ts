@@ -23,6 +23,8 @@ import { ElectricDoor } from 'entities/ElectricDoor';
 import { Portal } from 'entities/Portal';
 import { BigDoor } from 'entities/BigDoor';
 import { MazeGenerator } from 'generator/MazeGenerator';
+import { MazeMap } from 'entities/MazeMap';
+import { MazeGun } from 'entities/MazeGun';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
 
@@ -310,6 +312,14 @@ export class MainArea implements AreaState {
               playerPosition = [rowIndex, colIndex];
               this.area.createEntity(new Portal(rowIndex, colIndex));
             }
+            break;
+
+          case MazeObject.Map:
+            this.area.createEntity(new MazeMap(rowIndex, colIndex));
+            break;
+
+          case MazeObject.Gun:
+            this.area.createEntity(new MazeGun(rowIndex, colIndex));
             break;
         }
       }

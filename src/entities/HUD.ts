@@ -63,6 +63,8 @@ const MAP_DRAW_FUNCTIONS: { [K in MazeObject]?: DrawFunction } = {
   [MazeObject.CBox]: mapDrawIcon('ElectricBox'),
   [MazeObject.BigDoor]: mapDrawDoor('#654321', checkBigDoor),
   [MazeObject.Portal]: mapDrawPortal(),
+  [MazeObject.Gun]: mapDrawIcon('Gun'),
+  [MazeObject.Map]: mapDrawIcon('Map'),
 };
 
 const KEY_COLOR_ICON: Record<DoorColor, string> = {
@@ -215,11 +217,20 @@ export class HUD implements EntityState {
    * Draw the main heads-up display
    */
   private drawHUD(g2d: CanvasRenderingContext2D) {
-    this.drawHealthBar(g2d);
-    this.drawMapSubset(g2d);
-    this.drawInventory(g2d);
-    this.drawMessage(g2d);
-    this.drawTarget(g2d);
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    if (inventory.hasCollectedMap()) {
+      this.drawHealthBar(g2d);
+      this.drawMapSubset(g2d);
+    }
+
+    if (inventory.hasCollectedGun()) {
+      this.drawTarget(g2d);
+    }
+
+    if (inventory.hasCollectedMap() && inventory.hasCollectedGun()) {
+      this.drawInventory(g2d);
+      this.drawMessage(g2d);
+    }
   }
 
   /**
@@ -395,6 +406,11 @@ export class HUD implements EntityState {
    * Draw the fullscreen map centered
    */
   private drawFullMap(g2d: CanvasRenderingContext2D): void {
+    const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
+    if (!inventory.hasCollectedMap()) {
+      return;
+    }
+
     const mainArea = this.entity.area.state as MainArea;
     const [playerTileRow, playerTileCol] = mainArea.getPlayerTileLocation();
 
