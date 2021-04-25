@@ -1,4 +1,5 @@
-import { MainArea, SCALE_BASE } from 'areas/MainArea';
+import { MainArea } from 'areas/MainArea';
+import { SCALE_BASE } from 'areas/AbstractMazeArea';
 import { MazeObject } from 'areas/MazeObject';
 import { BoxCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';

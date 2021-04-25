@@ -1,4 +1,4 @@
-import { SCALE_HEIGHT } from 'areas/MainArea';
+import { SCALE_HEIGHT } from 'areas/AbstractMazeArea';
 import { EntityState } from 'engine/entity';
 import { DoorState } from 'resources/DoorState';
 import { Inventory } from 'resources/Inventory';

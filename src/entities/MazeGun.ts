@@ -50,7 +50,7 @@ export class MazeGun implements EntityState {
   }
 
   onStep(): void {
-    // Spin to make the key more noticable
+    // Spin to make the key more noticeable
     this.entity.object.rotateY(Math.PI / 256);
 
     // Test for player collision to collect the key

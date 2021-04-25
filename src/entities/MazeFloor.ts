@@ -1,4 +1,4 @@
-import { SCALE_BASE } from 'areas/MainArea';
+import { SCALE_BASE } from 'areas/AbstractMazeArea';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';
 
@@ -38,7 +38,7 @@ export class MazeFloor implements EntityState {
     // Build the plane object
     this.entity.object = new THREE.Mesh(PLANE_GEOMETRY, PLANE_MATERIAL);
     this.entity.object.rotation.x = (3 * Math.PI) / 2;
-    this.entity.object.scale.set(this.width * SCALE_BASE + 2, this.height * SCALE_BASE + 2, 1);
+    this.entity.object.scale.set(this.height * SCALE_BASE + 2, this.width * SCALE_BASE + 2, 1);
     this.entity.object.castShadow = true;
     this.entity.object.receiveShadow = true;
   }

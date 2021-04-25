@@ -12,7 +12,7 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: 'Game Engine',
+      title: 'Trapped Inside',
       template: 'src/index.html',
     }),
   ],

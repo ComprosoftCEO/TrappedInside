@@ -1,4 +1,4 @@
-import { MainArea } from 'areas/MainArea';
+import { TitleArea } from 'areas/TitleArea';
 import { Game } from 'engine/game';
 import * as THREE from 'three';
 import './styles.css';
@@ -46,6 +46,11 @@ import ElectricBoxIcon from 'assets/images/ElectricBox.png';
 import GunIcon from 'assets/images/Gun.png';
 import MapIcon from 'assets/images/Map.png';
 
+// Sounds
+
+// Music
+import TitleMusic from 'assets/music/title.wav';
+
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
 document.body.appendChild(gameCanvas);
@@ -59,7 +64,7 @@ const game = new Game(gameCanvas, overlayCanvas);
 // game.screenSize = [640, 480];
 loadAllAssets(game)
   .then((game) => {
-    game.start(new MainArea());
+    game.start(new TitleArea());
   })
   .catch((error) => {
     console.log('Failed to load assets: ' + error, error.stack);
@@ -185,6 +190,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('ElectricBox', ElectricBoxIcon),
     game.assets.loadImage('Gun', GunIcon),
     game.assets.loadImage('Map', MapIcon),
+    game.assets.loadAudioFile('Title', TitleMusic),
   ]);
 
   return game;

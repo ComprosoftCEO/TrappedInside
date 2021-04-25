@@ -1,5 +1,5 @@
-import { MainArea, SCALE_BASE, SCALE_HEIGHT } from 'areas/MainArea';
-import { Area } from 'engine/area';
+import { AbstractMazeArea, SCALE_BASE, SCALE_HEIGHT } from 'areas/AbstractMazeArea';
+import { Area, AreaState } from 'engine/area';
 import { BoxCollisionMask, GroupCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';
@@ -20,7 +20,7 @@ export class MazeWalls implements EntityState {
   private mask: GroupCollisionMask;
   private currentWall = 0;
 
-  constructor(numWalls: number, area: Area<MainArea>) {
+  constructor(numWalls: number, area: Area<AreaState>) {
     this.mask = new GroupCollisionMask();
 
     // Initialize the box material
@@ -38,7 +38,7 @@ export class MazeWalls implements EntityState {
   /**
    * Load a wall texture and configure texture scaling and repeating
    */
-  private static buildWallTexture(name: string, area: Area<MainArea>): THREE.Texture {
+  private static buildWallTexture(name: string, area: Area<AreaState>): THREE.Texture {
     const texture = area.game.assets.getTexture(name);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -49,7 +49,7 @@ export class MazeWalls implements EntityState {
   /**
    * Set a given (row, column) pair to be a wall
    */
-  public addWall(row: number, col: number, area: MainArea): void {
+  public addWall(row: number, col: number, area: AbstractMazeArea): void {
     if (this.currentWall >= this.walls.count) {
       return;
     }

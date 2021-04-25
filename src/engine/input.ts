@@ -560,7 +560,11 @@ export class InputManager {
    * Called when the mouse moves across the Canvas element
    */
   private onMouseMove(event: MouseEvent) {
-    this.mouseCoords = [event.clientX, event.clientY];
+    this.mouseCoords = [
+      (event.clientX * this.canvas.width) / this.canvas.clientWidth,
+      (event.clientY * this.canvas.height) / this.canvas.clientHeight,
+    ];
+
     if (document.pointerLockElement === this.canvas) {
       this.mouseMovement = [event.movementX, event.movementY];
     } else {
