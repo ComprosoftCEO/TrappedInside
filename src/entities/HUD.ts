@@ -101,7 +101,7 @@ export class HUD implements EntityState {
       .map(() =>
         Array(mainArea.mazeWidth)
           .fill(null)
-          .map(() => true),
+          .map(() => false),
       );
 
     // Only draw map every few frames, as this is an expensive operation
@@ -113,7 +113,7 @@ export class HUD implements EntityState {
 
   onStep(): void {
     this.updateVisited();
-    this.shouldDrawMap = this.entity.area.game.input.isKeyDown(Key.M);
+    this.shouldDrawMap = this.entity.area.game.input.isKeyDown(Key.Space);
   }
 
   /**
@@ -329,7 +329,7 @@ export class HUD implements EntityState {
     if (inventory.hasCollectedBattery()) {
       const icon = assets.getImage('Battery');
       g2d.drawImage(icon, currentX, HUD_TOP + 30, slotSize, slotSize);
-      g2d.fillText('x1', currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
+      g2d.fillText(`x${inventory.getBatteryCount()}`, currentX + slotSize / 2, HUD_TOP + 30 + slotSize);
       currentX += slotSize + spacing;
     }
   }

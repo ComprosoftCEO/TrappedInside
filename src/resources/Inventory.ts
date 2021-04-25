@@ -11,7 +11,7 @@ export class Inventory {
     [DoorColor.Blue]: 0,
   };
 
-  private batteryCollected = false;
+  private batteryCollected = 0;
 
   public collectKey(color: DoorColor): void {
     this.keysCollected[color] += 1;
@@ -35,16 +35,20 @@ export class Inventory {
   }
 
   public collectBattery(): void {
-    this.batteryCollected = true;
+    this.batteryCollected += 1;
   }
 
-  public hasCollectedBattery(): boolean {
+  public getBatteryCount(): number {
     return this.batteryCollected;
   }
 
+  public hasCollectedBattery(): boolean {
+    return this.batteryCollected > 0;
+  }
+
   public useBattery(): boolean {
-    if (this.batteryCollected) {
-      this.batteryCollected = false;
+    if (this.batteryCollected > 0) {
+      this.batteryCollected -= 1;
       return true;
     } else {
       return false;

@@ -23,7 +23,6 @@ import { ElectricDoor } from 'entities/ElectricDoor';
 import { Portal } from 'entities/Portal';
 import { BigDoor } from 'entities/BigDoor';
 import { MazeGenerator } from 'generator/MazeGenerator';
-import TestMaze from 'assets/levels/TestMaze.lvl';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
 
@@ -54,8 +53,6 @@ export class MainArea implements AreaState {
   constructor() {
     const generator = new MazeGenerator(13, 13, stringToMaze(Template));
     this.maze = generator.generateMaze();
-
-    // this.maze = stringToMaze(TestMaze);
   }
 
   /**

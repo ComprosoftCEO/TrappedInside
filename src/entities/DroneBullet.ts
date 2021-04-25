@@ -50,7 +50,7 @@ export class DroneBullet implements EntityState {
     this.entity.object.translateX(MOVEMENT_SPEED);
 
     this.entity.mask.update(this.entity.object);
-    (this.entity.mask as SphereCollisionMask).sphere.radius /= 2;
+    (this.entity.mask as SphereCollisionMask).sphere.radius /= 3;
     this.testForPlayerCollision();
     this.testForWallCollision();
   }

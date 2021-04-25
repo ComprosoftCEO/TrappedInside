@@ -51,7 +51,7 @@ export class Player implements EntityState {
 
     // Build the camera
     this.camera = new THREE.PerspectiveCamera(
-      45,
+      50,
       entity.area.game.canvasWidth / entity.area.game.canvasHeight,
       0.001,
       1000,

@@ -15,15 +15,8 @@ const ROTATION_SPEED = Math.PI / 64;
 const CLAMP_THRESHHOLD = 0.0001;
 const ROTATION_THRESHHOLD = 0.0001;
 
-// Set of object that the Drone can move through
-const CAN_MOVE_THROUGH = new Set([
-  MazeObject.Empty,
-  MazeObject.RedKey,
-  MazeObject.GreenKey,
-  MazeObject.YellowKey,
-  MazeObject.BlueKey,
-  MazeObject.Drone,
-]);
+// Set of object that block the drone
+const CANNOT_MOVE_THROUGH = new Set([MazeObject.Wall, MazeObject.BigDoor]);
 
 // Drone State:
 //
@@ -233,16 +226,16 @@ export class Drone implements EntityState {
     // Figure out directions available
     const mainArea = this.entity.area.state as MainArea;
     const available = [];
-    if (CAN_MOVE_THROUGH.has(mainArea.maze[this.row - 1][this.column])) {
+    if (!CANNOT_MOVE_THROUGH.has(mainArea.maze[this.row - 1][this.column])) {
       available.push(Direction.Up);
     }
-    if (CAN_MOVE_THROUGH.has(mainArea.maze[this.row + 1][this.column])) {
+    if (!CANNOT_MOVE_THROUGH.has(mainArea.maze[this.row + 1][this.column])) {
       available.push(Direction.Down);
     }
-    if (CAN_MOVE_THROUGH.has(mainArea.maze[this.row][this.column - 1])) {
+    if (!CANNOT_MOVE_THROUGH.has(mainArea.maze[this.row][this.column - 1])) {
       available.push(Direction.Left);
     }
-    if (CAN_MOVE_THROUGH.has(mainArea.maze[this.row][this.column + 1])) {
+    if (!CANNOT_MOVE_THROUGH.has(mainArea.maze[this.row][this.column + 1])) {
       available.push(Direction.Right);
     }
 
