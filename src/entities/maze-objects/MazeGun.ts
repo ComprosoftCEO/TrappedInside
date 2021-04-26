@@ -47,6 +47,9 @@ export class MazeGun implements EntityState {
     // Update the inventory
     const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
     inventory.collectGun();
+
+    // Play the sound
+    mainArea.collectItem.play();
   }
 
   onStep(): void {

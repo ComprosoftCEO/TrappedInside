@@ -85,15 +85,7 @@ export class Player implements EntityState {
     this.mask.box.translate(position);
   }
 
-  onDestroy(): void {
-    // Destroy the HUD
-    for (const hud of this.entity.area.findEntities('hud')) {
-      hud.destroy();
-    }
-
-    // Prepare the death animation
-    this.entity.area.createEntity(new DeathAnimation());
-  }
+  onDestroy(): void {}
 
   onStep(): void {
     // Make sure the camera is scaled properly
@@ -204,13 +196,11 @@ export class Player implements EntityState {
     const rightTriggerStarted = !this.rightTriggerPressed && rightTriggerPressed;
     this.rightTriggerPressed = rightTriggerPressed;
     if (
-      this.gunCollected &&
-      (input.isMouseButtonStarted(MouseButton.Left) ||
-        input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
-        rightTriggerStarted)
+      input.isMouseButtonStarted(MouseButton.Left) ||
+      input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
+      rightTriggerStarted
     ) {
-      const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
-      this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));
+      this.shoot();
     }
 
     if (input.isKeyStarted(Key.C)) {
@@ -270,12 +260,36 @@ export class Player implements EntityState {
   }
 
   /**
+   * Shoot the gun!
+   */
+  private shoot(): void {
+    if (!this.gunCollected) {
+      return;
+    }
+
+    const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
+    this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));
+
+    const mainArea = this.entity.area.state as MainArea;
+    mainArea.playerShoot.volume = 0.125;
+    mainArea.playerShoot.play();
+  }
+
+  /**
    * Test if the player has died and handle it!
    */
   private testForDeath(): void {
     const health = this.entity.area.game.resources.getResource<Health>('health');
     if (!health.hasHealthLeft()) {
       this.entity.destroy();
+
+      // Destroy the HUD
+      for (const hud of this.entity.area.findEntities('hud')) {
+        hud.destroy();
+      }
+
+      // Prepare the death animation
+      this.entity.area.createEntity(new DeathAnimation());
     }
   }
 

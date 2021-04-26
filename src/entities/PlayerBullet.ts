@@ -1,3 +1,4 @@
+import { MainArea } from 'areas/MainArea';
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';

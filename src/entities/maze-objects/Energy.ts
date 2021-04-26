@@ -45,6 +45,14 @@ export class Energy implements EntityState {
   onDestroy(): void {
     const mainArea = this.entity.area.state as MainArea;
     mainArea.maze[this.row][this.column] = MazeObject.Empty;
+
+    // Play the sound
+    if (mainArea.energyLeft === 0) {
+      mainArea.activatePortal.volume = 0.5;
+      mainArea.activatePortal.play();
+    } else {
+      mainArea.collectItem.play();
+    }
   }
 
   onStep(): void {

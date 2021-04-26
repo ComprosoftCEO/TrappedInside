@@ -266,6 +266,11 @@ export class Drone implements EntityState {
       if (this.entity.isCollidingWith(bullet)) {
         bullet.destroy();
         this.health -= 1;
+
+        // Play the sound
+        const mainArea = this.entity.area.state as MainArea;
+        mainArea.hitObject.volume = 0.125;
+        mainArea.hitObject.play();
       }
     }
   }
@@ -286,6 +291,11 @@ export class Drone implements EntityState {
     if (timerIndex === 0 && this.canSeePlayer()) {
       // Shoot at the player
       this.entity.area.createEntity(new DroneBullet(this.entity));
+
+      // Play the sound
+      const mainArea = this.entity.area.state as MainArea;
+      mainArea.droneShoot.volume = 0.125;
+      mainArea.droneShoot.play();
     }
   }
 

@@ -31,6 +31,8 @@ import { FadeInEffect } from 'entities/effects/FadeInEffect';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
 import { EntityState } from 'engine/entity';
+import { FadeInMainArea } from 'entities/effects/FadeInMainArea';
+import { MouseButton } from 'engine/input';
 
 /// Functions to construct all of the objects in the mmaze
 type MazeObjectFunction = (row: number, col: number, area: Area<MainArea>) => EntityState;
@@ -71,6 +73,22 @@ export class MainArea extends AbstractMazeArea implements AreaState {
   // Store the last known tile location for the player
   private playerTileLocation: [number, number];
   private playerAngle: number; // Angle in radians
+
+  // All music and sounds for the main area
+  public forestAmbience: AudioWrapper;
+
+  public playerShoot: AudioWrapper;
+  public droneShoot: AudioWrapper;
+  public hitObject: AudioWrapper;
+  public oofSound: AudioWrapper;
+  public collectItem: AudioWrapper;
+  public openDoor: AudioWrapper;
+  public openBigDoor: AudioWrapper;
+  public toggleLever: AudioWrapper;
+  public electricBox: AudioWrapper;
+  public explosion: AudioWrapper;
+  public activatePortal: AudioWrapper;
+  public enterPortal: AudioWrapper;
 
   constructor() {
     super(MainArea.generateNewMaze());
@@ -125,15 +143,23 @@ export class MainArea extends AbstractMazeArea implements AreaState {
     area.game.renderer.shadowMap.enabled = true;
 
     // Load the audio files
-    // this.shoot = area.createAudio('Shoot');
-    // this.hit = area.createAudio('Hit');
-    // this.explosion = area.createAudio('Explosion');
-    // this.bgm = area.createAudio('BGM');
-    // this.bgm.play(true);
+    this.forestAmbience = area.createAudio('ForestAmbience');
+    this.playerShoot = area.createAudio('PlayerShoot');
+    this.droneShoot = area.createAudio('DroneShoot');
+    this.hitObject = area.createAudio('HitObject');
+    this.oofSound = area.createAudio('Oof');
+    this.collectItem = area.createAudio('CollectItem');
+    this.openDoor = area.createAudio('OpenDoor');
+    this.openBigDoor = area.createAudio('OpenBigDoor');
+    this.toggleLever = area.createAudio('ToggleLever');
+    this.electricBox = area.createAudio('ElectricBox');
+    this.explosion = area.createAudio('Explosion');
+    this.activatePortal = area.createAudio('ActivatePortal');
+    this.enterPortal = area.createAudio('EnterPortal');
 
-    // for (let i = 0; i < 10; i += 1) {
-    //   this.area.scene.add(this.area.game.assets.getObject('Grass').clone());
-    // }
+    // Play the background music
+    this.forestAmbience.volume = 0;
+    this.forestAmbience.play(true);
 
     // Configure game resources
     this.area.game.resources.setResource('health', new Health());
@@ -146,7 +172,7 @@ export class MainArea extends AbstractMazeArea implements AreaState {
 
     // Spawn the main objects
     this.area.createEntity(new HUD());
-    this.area.createEntity(new FadeInEffect(3));
+    this.area.createEntity(new FadeInMainArea());
   }
 
   /**
@@ -210,6 +236,12 @@ export class MainArea extends AbstractMazeArea implements AreaState {
 
   onStep(): void {
     this.updatePlayerTileLocationAndAngle();
+
+    // Fix for audio playing
+    const input = this.area.game.input;
+    if (input.isMouseButtonDown(MouseButton.Left)) {
+      this.forestAmbience.audio.context.resume();
+    }
   }
 
   /**

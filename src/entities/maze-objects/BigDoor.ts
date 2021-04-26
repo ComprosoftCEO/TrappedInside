@@ -4,6 +4,7 @@ import { DoorState } from 'resources/DoorState';
 import { Inventory } from 'resources/Inventory';
 import { AbstractDoor } from './AbstractDoor';
 import { HUD } from 'entities/HUD';
+import { MainArea } from 'areas/MainArea';
 
 /**
  * Door object in the maze
@@ -58,11 +59,16 @@ export class BigDoor extends AbstractDoor implements EntityState {
   private openBigDoor(): void {
     const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
     state.openBigDoor();
-    this.openDoor(1 / 6);
+    this.openDoor(1 / 8);
 
     // Hide the message after a given number of ticks
     this.showMessage = true;
     this.entity.setTimer(0, 400, false);
+
+    // Play the sound
+    const mainArea = this.entity.area.state as MainArea;
+    mainArea.openBigDoor.volume = 8;
+    mainArea.openBigDoor.play();
   }
 
   onTimer(timerIndex: number): void {

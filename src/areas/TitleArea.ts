@@ -7,11 +7,11 @@ import { Sunlight } from 'entities/effects/Sunlight';
 import { MazeFloor } from 'entities/maze-objects/MazeFloor';
 import { DummyBigDoor } from 'entities/maze-objects/DummyBigDoor';
 import { AudioWrapper } from 'engine/audio';
-import { Key, MouseButton } from 'engine/input';
+import { GamepadAxis, GamepadButton, Key, MouseButton } from 'engine/input';
 import { StartButton } from 'entities/ui/StartButton';
-import Title from 'assets/levels/Title.lvl';
 import { FadeInEffect } from 'entities/effects/FadeInEffect';
 import { StartIntroduction } from 'entities/effects/StartIntroduction';
+import Title from 'assets/levels/Title.lvl';
 import * as THREE from 'three';
 
 type MazeObjectFunction = (row: number, col: number, area: Area<TitleArea>) => EntityState;
@@ -122,7 +122,15 @@ export class TitleArea extends AbstractMazeArea implements AreaState {
       this.titleMusic.audio.context.resume();
     }
 
-    if (input.isKeyStarted(Key.Enter)) {
+    if (
+      input.isKeyStarted(Key.Enter) ||
+      input.isKeyStarted(Key.Space) ||
+      input.isGamepadButtonStarted(0, GamepadButton.ACross) ||
+      input.isGamepadButtonStarted(0, GamepadButton.XSquare) ||
+      input.isGamepadButtonStarted(0, GamepadButton.YTriangle) ||
+      input.isGamepadButtonStarted(0, GamepadButton.Start) ||
+      input.getGamepadAxis(0, GamepadAxis.RightTrigger) > 0.5
+    ) {
       this.startGame();
     }
   }

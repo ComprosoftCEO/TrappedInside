@@ -47,10 +47,24 @@ import GunIcon from 'assets/images/Gun.png';
 import MapIcon from 'assets/images/Map.png';
 
 // Sounds
+import PlayerShoot from 'assets/sounds/player-shoot.wav';
+import DroneShoot from 'assets/sounds/drone-shoot.wav';
+import HitObject from 'assets/sounds/hit-object.wav';
+import Oof from 'assets/sounds/oof.wav';
+import CollectItem from 'assets/sounds/collect-item.wav';
+import OpenDoor from 'assets/sounds/open-door.wav';
+import OpenBigDoor from 'assets/sounds/open-big-door.wav';
+import ToggleLever from 'assets/sounds/toggle-lever.wav';
+import ElectricBoxSound from 'assets/sounds/electric-box.wav';
+import ExplosionSound from 'assets/sounds/explosion.wav';
+import ActivatePortal from 'assets/sounds/activate-portal.wav';
+import EnterPortal from 'assets/sounds/enter-portal.wav';
 
 // Music
 import TitleMusic from 'assets/music/title.wav';
 import IntroMusic from 'assets/music/intro.wav';
+import ForestAmbience from 'assets/music/forest-ambience.wav';
+import HeartMonitor from 'assets/music/heart-monitor.wav';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -62,7 +76,6 @@ overlayCanvas.classList.add('overlay');
 document.body.appendChild(overlayCanvas);
 
 const game = new Game(gameCanvas, overlayCanvas);
-// game.screenSize = [640, 480];
 loadAllAssets(game)
   .then((game) => {
     game.start(new TitleArea());
@@ -82,6 +95,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadTexture('BrickColor', BrickColor),
     game.assets.loadTexture('BrickNormal', BrickNrm),
     game.assets.loadTexture('BrickOcclusion', BrickOcc),
+
     game.assets.loadCubeTexture('SkyboxBG', {
       positiveX: SkyboxPosX,
       negativeX: SkyboxNegX,
@@ -90,6 +104,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
       positiveZ: SkyboxPosZ,
       negativeZ: SkyboxNegZ,
     }),
+
     game.assets.loadGLTFFile(Wall, (glb, manager) => {
       manager.saveObject('Wall', glb.scene.children[0]);
     }),
@@ -180,6 +195,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
       material.transparent = true;
       material.opacity = 0.8;
     }),
+
     game.assets.loadImage('RedKey', RedKey),
     game.assets.loadImage('YellowKey', YellowKey),
     game.assets.loadImage('GreenKey', GreenKey),
@@ -191,8 +207,24 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('ElectricBox', ElectricBoxIcon),
     game.assets.loadImage('Gun', GunIcon),
     game.assets.loadImage('Map', MapIcon),
+
+    game.assets.loadAudioFile('PlayerShoot', PlayerShoot),
+    game.assets.loadAudioFile('DroneShoot', DroneShoot),
+    game.assets.loadAudioFile('HitObject', HitObject),
+    game.assets.loadAudioFile('Oof', Oof),
+    game.assets.loadAudioFile('CollectItem', CollectItem),
+    game.assets.loadAudioFile('OpenDoor', OpenDoor),
+    game.assets.loadAudioFile('OpenBigDoor', OpenBigDoor),
+    game.assets.loadAudioFile('ToggleLever', ToggleLever),
+    game.assets.loadAudioFile('ElectricBox', ElectricBoxSound),
+    game.assets.loadAudioFile('Explosion', ExplosionSound),
+    game.assets.loadAudioFile('ActivatePortal', ActivatePortal),
+    game.assets.loadAudioFile('EnterPortal', EnterPortal),
+
     game.assets.loadAudioFile('Title', TitleMusic),
     game.assets.loadAudioFile('Intro', IntroMusic),
+    game.assets.loadAudioFile('ForestAmbience', ForestAmbience),
+    game.assets.loadAudioFile('HeartMonitor', HeartMonitor),
   ]);
 
   return game;

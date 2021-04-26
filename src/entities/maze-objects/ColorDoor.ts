@@ -1,3 +1,4 @@
+import { MainArea } from 'areas/MainArea';
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { GamepadButton, Key } from 'engine/input';
@@ -89,6 +90,10 @@ export class ColorDoor extends AbstractDoor implements EntityState {
       // Mark the door as open in the state
       const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
       state.setColoredDoorOpened(this.row, this.column);
+
+      // Play the sound
+      const mainArea = this.entity.area.state as MainArea;
+      mainArea.openDoor.play();
     }
   }
 

@@ -1,6 +1,7 @@
 import { MainArea } from 'areas/MainArea';
 import { BoxCollisionMask, GroupCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
+import { EnterPortalEffect } from 'entities/effects/EnterPortalEffect';
 import { HUD } from 'entities/HUD';
 import * as THREE from 'three';
 
@@ -113,8 +114,14 @@ export class Portal implements EntityState {
       return;
     }
 
-    // TODO: Actually end the game
-    this.entity.area.game.setArea(new MainArea());
+    // Destroy all of the interaction objects
+    player.destroy();
+    for (const hud of this.entity.area.findEntities('hud')) {
+      hud.destroy();
+    }
+
+    // Enter the portal effect
+    this.entity.area.createEntity(new EnterPortalEffect());
   }
 
   onTimer(_timerIndex: number): void {}

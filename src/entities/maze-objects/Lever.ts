@@ -51,7 +51,7 @@ export class Lever implements EntityState {
   onDestroy(): void {}
 
   onStep(): void {
-    this.mixer.update(0.01);
+    this.mixer.update(0.02);
     this.testForPlayerInteraction();
   }
 
@@ -94,6 +94,10 @@ export class Lever implements EntityState {
 
       const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
       state.toggleDoors();
+
+      // Play the sound
+      const mainArea = this.entity.area.state as MainArea;
+      mainArea.toggleLever.play();
     }
   }
 

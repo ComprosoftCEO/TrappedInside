@@ -52,6 +52,10 @@ export class Rock implements EntityState {
   private checkForBulletCollision(): void {
     for (const bullet of this.entity.area.findEntities('player-bullet')) {
       if (this.entity.isCollidingWith(bullet)) {
+        const mainArea = this.entity.area.state as MainArea;
+        mainArea.hitObject.volume = 0.125;
+        mainArea.hitObject.play();
+
         bullet.destroy();
         this.health -= 1;
       }

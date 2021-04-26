@@ -1,3 +1,4 @@
+import { MainArea } from 'areas/MainArea';
 import { Entity, EntityState } from 'engine/entity';
 
 export class HitAnimation implements EntityState {
@@ -8,6 +9,13 @@ export class HitAnimation implements EntityState {
   onCreate(entity: Entity<this>): void {
     this.entity = entity;
     this.entity.setTimer(1, 5, false);
+
+    // Play the sound effect
+    const mainArea = this.entity.area.state as MainArea;
+    mainArea.oofSound.volume = 0.5;
+    if (!mainArea.oofSound.isPlaying) {
+      mainArea.oofSound.play();
+    }
   }
 
   onDestroy(): void {}

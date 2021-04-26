@@ -45,10 +45,13 @@ export class MazeMap implements EntityState {
     // Update the inventory
     const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
     inventory.collectMap();
+
+    // Play the sound
+    mainArea.collectItem.play();
   }
 
   onStep(): void {
-    // Spin to make the key more noticable
+    // Spin to make the key more noticeable
     this.entity.object.rotateY(Math.PI / 256);
 
     // Test for player collision to collect the key

@@ -40,6 +40,9 @@ export class Battery implements EntityState {
     // Update the inventory
     const inventory = this.entity.area.game.resources.getResource<Inventory>('inventory');
     inventory.collectBattery();
+
+    // Play the sound
+    mainArea.collectItem.play();
   }
 
   onStep(): void {

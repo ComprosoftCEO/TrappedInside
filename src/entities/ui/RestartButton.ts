@@ -1,25 +1,24 @@
 import { AbstractButton } from './AbstractButton';
 import { EntityState } from 'engine/entity';
-import { IntroArea } from 'areas/IntroArea';
 import { MainArea } from 'areas/MainArea';
-import { GamepadAxis, GamepadButton, Key } from 'engine/input';
+import { Key, GamepadAxis, GamepadButton } from 'engine/input';
 
-const WIDTH = 50;
+const WIDTH = 200;
 const HEIGHT = 30;
 
 /**
- * Button to skip the intro
+ * Button to start the game
  */
-export class SkipIntroButton extends AbstractButton implements EntityState {
-  public readonly tags: string[] = ['skip-button'];
+export class RestartButton extends AbstractButton implements EntityState {
+  public readonly tags: string[] = ['restart-button'];
 
   constructor() {
-    super('Skip');
+    super('Restart');
   }
 
   onCreateButton(): void {
-    this.x = this.entity.area.overlayWidth - WIDTH - 20;
-    this.y = this.entity.area.overlayHeight - HEIGHT - 20;
+    this.x = this.entity.area.overlayWidth / 2 - WIDTH / 2;
+    this.y = this.entity.area.overlayHeight - (HEIGHT + 40);
     this.width = WIDTH;
     this.height = HEIGHT;
   }
@@ -27,7 +26,6 @@ export class SkipIntroButton extends AbstractButton implements EntityState {
   onDestroy(): void {}
 
   onClick(): void {
-    (this.entity.area.state as IntroArea).introMusic.stop();
     this.entity.area.game.setArea(new MainArea());
   }
 

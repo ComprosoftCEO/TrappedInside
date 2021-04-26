@@ -1,3 +1,4 @@
+import { MainArea } from 'areas/MainArea';
 import { Entity, EntityState } from 'engine/entity';
 
 /**
@@ -29,6 +30,11 @@ export class Explosion implements EntityState {
     object.position.copy(this.position);
     object.scale.set(this.scale, this.scale, this.scale);
     this.entity.object = object;
+
+    // Play the sound effect
+    const mainArea = this.entity.area.state as MainArea;
+    mainArea.explosion.audio.playbackRate = 2;
+    mainArea.explosion.play();
   }
 
   onDestroy(): void {}

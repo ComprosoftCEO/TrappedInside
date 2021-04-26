@@ -4,7 +4,6 @@ import { MouseButton } from 'engine/input';
 import { SkipIntroButton } from 'entities/ui/SkipIntroButton';
 import { MainArea } from './MainArea';
 
-const LEFT_X = 40;
 const LINE1_1 = 'I remember... ';
 const LINE1_2 = 'I was having a dream...';
 const LINE2 = 'I was trapped inside a massive labyrinth...';
@@ -17,6 +16,7 @@ const FINAL_LINE = "I don't recall ever waking up from that dream...";
 const FADE_IN_SPEEDS: number[] = [5, 5, 5, 5, 5, 5, 5];
 const FADE_IN_ALPHA: number[] = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05];
 const FADE_IN_DELAYS: number[] = [150, 200, 400, 250, 300, 180, 10];
+const LEFT_X = 40;
 
 /**
  * Draws the game introduction

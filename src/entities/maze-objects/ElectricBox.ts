@@ -81,6 +81,11 @@ export class ElectricBox implements EntityState {
       // Mark door as powered
       const state = this.entity.area.game.resources.getResource<DoorState>('door-state');
       state.setDoorPowered(this.type, true);
+
+      // Play the power-up sound
+      const mainArea = this.entity.area.state as MainArea;
+      mainArea.electricBox.volume = 0.25;
+      mainArea.electricBox.play();
     }
 
     // Trigger: called ONE time after the battery has been removed
@@ -146,6 +151,10 @@ export class ElectricBox implements EntityState {
 
         // Indicate no battery
         this.hasBattery = false;
+
+        // Play the power-off sound
+        const mainArea = this.entity.area.state as MainArea;
+        mainArea.toggleLever.play();
       } else if (inventory.hasCollectedBattery()) {
         // Insert animation
         this.insertBattery.timeScale = 1;
