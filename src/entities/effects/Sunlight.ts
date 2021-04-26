@@ -2,6 +2,9 @@ import { AbstractMazeArea, SCALE_BASE } from 'areas/AbstractMazeArea';
 import { Entity, EntityState } from 'engine/entity';
 import * as THREE from 'three';
 
+const MAX_ANGLE = Math.PI / 4;
+const ROT_SPEED = Math.PI / 64;
+
 /**
  * Handles the sunlight inside the maze
  */
@@ -12,6 +15,7 @@ export class Sunlight implements EntityState {
 
   private light: THREE.DirectionalLight;
   private lightAngle = (Math.PI * 5) / 12;
+  private reverse = false;
   private lightDistance: number;
 
   onCreate(entity: Entity<this>): void {
@@ -54,9 +58,15 @@ export class Sunlight implements EntityState {
 
   onTimer(timerIndex: number): void {
     if (timerIndex === 0) {
-      this.lightAngle += Math.PI / 64;
-      this.lightAngle %= Math.PI; // Don't have a night
+      this.lightAngle += this.reverse ? -ROT_SPEED : ROT_SPEED;
       this.updateLightAngle();
+
+      // Reverse the light so it flip-flops
+      if (this.lightAngle < MAX_ANGLE) {
+        this.reverse = false;
+      } else if (this.lightAngle > Math.PI - MAX_ANGLE) {
+        this.reverse = true;
+      }
     }
   }
 
