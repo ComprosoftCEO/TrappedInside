@@ -155,6 +155,7 @@ export class ElectricBox implements EntityState {
         // Play the power-off sound
         const mainArea = this.entity.area.state as MainArea;
         mainArea.toggleLever.play();
+        mainArea.openDoor.play();
       } else if (inventory.hasCollectedBattery()) {
         // Insert animation
         this.insertBattery.timeScale = 1;

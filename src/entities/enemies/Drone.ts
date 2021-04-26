@@ -104,7 +104,7 @@ export class Drone implements EntityState {
     this.entity.mask.update(this.entity.object.children[4]);
     this.updateMazePosition();
 
-    if (this.canSeePlayer()) {
+    if (this.canSeePlayer() && this.inCenterOfTile()) {
       this.pointTowardsPlayer();
     } else {
       this.moveDrone();
@@ -155,6 +155,16 @@ export class Drone implements EntityState {
   }
 
   /**
+   * Test if the drone is in the center of a tile
+   */
+  private inCenterOfTile(): boolean {
+    return (
+      isBasicallyInteger(this.entity.object.position.x / SCALE_BASE, CLAMP_THRESHHOLD) &&
+      isBasicallyInteger(this.entity.object.position.z / SCALE_BASE, CLAMP_THRESHHOLD)
+    );
+  }
+
+  /**
    * Point towards the player
    */
   private pointTowardsPlayer(): void {
@@ -187,10 +197,7 @@ export class Drone implements EntityState {
         this.entity.object.translateX(MOVEMENT_SPEED);
 
         // Pick a new direction at every tile
-        if (
-          isBasicallyInteger(this.entity.object.position.x / SCALE_BASE, CLAMP_THRESHHOLD) &&
-          isBasicallyInteger(this.entity.object.position.z / SCALE_BASE, CLAMP_THRESHHOLD)
-        ) {
+        if (this.inCenterOfTile()) {
           const mainArea = this.entity.area.state as MainArea;
           const position = mainArea.tileLocationToPosition(this.row, this.column);
           this.entity.object.position.x = position.x;
@@ -288,7 +295,7 @@ export class Drone implements EntityState {
   }
 
   onTimer(timerIndex: number): void {
-    if (timerIndex === 0 && this.canSeePlayer()) {
+    if (timerIndex === 0 && this.canSeePlayer() && this.inCenterOfTile()) {
       // Shoot at the player
       this.entity.area.createEntity(new DroneBullet(this.entity));
 

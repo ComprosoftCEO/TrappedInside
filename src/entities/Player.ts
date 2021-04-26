@@ -202,10 +202,6 @@ export class Player implements EntityState {
     ) {
       this.shoot();
     }
-
-    if (input.isKeyStarted(Key.C)) {
-      this.entity.area.game.resources.getResource<Health>('health').hit(1000);
-    }
   }
 
   /**

@@ -98,6 +98,7 @@ export class Lever implements EntityState {
       // Play the sound
       const mainArea = this.entity.area.state as MainArea;
       mainArea.toggleLever.play();
+      mainArea.openDoor.play();
     }
   }
 
