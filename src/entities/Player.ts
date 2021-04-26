@@ -212,6 +212,10 @@ export class Player implements EntityState {
       const rotation = new THREE.Euler(0, this.horDir + Math.PI / 2, this.vertDir, 'YXZ');
       this.entity.area.createEntity(new PlayerBullet(this.gun, rotation.toVector3()));
     }
+
+    if (input.isKeyStarted(Key.C)) {
+      this.entity.area.game.resources.getResource<Health>('health').hit(1000);
+    }
   }
 
   /**

@@ -8,9 +8,10 @@ import { MazeFloor } from 'entities/maze-objects/MazeFloor';
 import { DummyBigDoor } from 'entities/maze-objects/DummyBigDoor';
 import { AudioWrapper } from 'engine/audio';
 import { Key, MouseButton } from 'engine/input';
-import { MainArea } from './MainArea';
 import { StartButton } from 'entities/ui/StartButton';
 import Title from 'assets/levels/Title.lvl';
+import { FadeInEffect } from 'entities/effects/FadeInEffect';
+import { StartIntroduction } from 'entities/effects/StartIntroduction';
 import * as THREE from 'three';
 
 type MazeObjectFunction = (row: number, col: number, area: Area<TitleArea>) => EntityState;
@@ -26,6 +27,7 @@ export class TitleArea extends AbstractMazeArea implements AreaState {
 
   private camera: THREE.PerspectiveCamera;
   private cameraPos: [number, number] = [0, 0];
+  private drawTitle = true;
 
   public titleMusic: AudioWrapper;
 
@@ -65,8 +67,9 @@ export class TitleArea extends AbstractMazeArea implements AreaState {
     this.titleMusic = this.area.createAudio('Title');
     this.titleMusic.play(true);
 
-    // Add the button object
+    // Add any other objects
     this.area.createEntity(new StartButton());
+    this.area.createEntity(new FadeInEffect(3));
   }
 
   /**
@@ -128,18 +131,37 @@ export class TitleArea extends AbstractMazeArea implements AreaState {
    * Play the game!
    */
   public startGame(): void {
-    this.titleMusic.stop();
-    this.area.game.setArea(new MainArea());
+    if (!this.drawTitle) {
+      return;
+    }
+
+    // Clear any UI elements
+    this.drawTitle = false;
+    for (const button of this.area.findEntities('start-button')) {
+      button.destroy();
+    }
+
+    this.area.createEntity(new StartIntroduction());
   }
 
   /// Draw the title screen
   onDraw(g2d: CanvasRenderingContext2D): void {
+    if (!this.drawTitle) {
+      return;
+    }
+
     // Draw the title text
     g2d.font = 'bold 64pt serif';
     g2d.textAlign = 'center';
     g2d.textBaseline = 'top';
     g2d.fillStyle = '#0368ff';
     g2d.fillText('Trapped Inside', this.area.overlayWidth / 2, 20);
+
+    g2d.beginPath();
+    g2d.strokeStyle = 'black';
+    g2d.lineWidth = 2;
+    g2d.strokeText('Trapped Inside', this.area.overlayWidth / 2, 20);
+    g2d.stroke();
 
     const metrics = g2d.measureText('Trapped Inside');
     g2d.font = '18pt sans-serif';

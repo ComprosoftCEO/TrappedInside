@@ -50,6 +50,7 @@ import MapIcon from 'assets/images/Map.png';
 
 // Music
 import TitleMusic from 'assets/music/title.wav';
+import IntroMusic from 'assets/music/intro.wav';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -191,6 +192,7 @@ async function loadAllAssets(game: Game): Promise<Game> {
     game.assets.loadImage('Gun', GunIcon),
     game.assets.loadImage('Map', MapIcon),
     game.assets.loadAudioFile('Title', TitleMusic),
+    game.assets.loadAudioFile('Intro', IntroMusic),
   ]);
 
   return game;

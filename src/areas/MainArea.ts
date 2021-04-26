@@ -27,6 +27,7 @@ import { MazeMap } from 'entities/maze-objects/MazeMap';
 import { MazeGun } from 'entities/maze-objects/MazeGun';
 import { AbstractMazeArea } from './AbstractMazeArea';
 import { Sunlight } from 'entities/effects/Sunlight';
+import { FadeInEffect } from 'entities/effects/FadeInEffect';
 import Template from 'assets/levels/Template.lvl';
 import * as THREE from 'three';
 import { EntityState } from 'engine/entity';
@@ -138,7 +139,6 @@ export class MainArea extends AbstractMazeArea implements AreaState {
     this.area.game.resources.setResource('health', new Health());
     this.area.game.resources.setResource('inventory', new Inventory());
     this.area.game.resources.setResource('door-state', new DoorState());
-    console.log('Created');
 
     // Build the room
     this.area.createEntity(new MazeFloor(this.mazeWidth, this.mazeHeight));
@@ -146,6 +146,7 @@ export class MainArea extends AbstractMazeArea implements AreaState {
 
     // Spawn the main objects
     this.area.createEntity(new HUD());
+    this.area.createEntity(new FadeInEffect(3));
   }
 
   /**
