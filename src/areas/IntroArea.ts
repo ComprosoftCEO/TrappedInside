@@ -16,7 +16,6 @@ const FINAL_LINE = "I don't recall ever waking up from that dream...";
 const FADE_IN_SPEEDS: number[] = [5, 5, 5, 5, 5, 5, 5];
 const FADE_IN_ALPHA: number[] = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05];
 const FADE_IN_DELAYS: number[] = [150, 200, 400, 250, 300, 180, 10];
-const LEFT_X = 40;
 
 /**
  * Draws the game introduction
@@ -131,18 +130,22 @@ export class IntroArea implements AreaState {
     const middleLine = topLine + this.area.overlayHeight / 3;
     const bottomLine = middleLine + this.area.overlayHeight / 3;
 
+    // Use font metrics to center the top line, which has two parts
+    const singleMetrics = g2d.measureText(LINE1_1);
+    const totalMetrics = g2d.measureText(LINE1_1 + LINE1_2);
+
     g2d.globalAlpha = this.alpha[0];
-    g2d.fillText(LINE1_1, LEFT_X, topLine);
+    g2d.fillText(LINE1_1, this.area.overlayWidth / 2 - totalMetrics.width / 2, topLine);
 
-    const metrics = g2d.measureText(LINE1_1);
     g2d.globalAlpha = this.alpha[1];
-    g2d.fillText(LINE1_2, LEFT_X + metrics.width, topLine);
+    g2d.fillText(LINE1_2, this.area.overlayWidth / 2 - totalMetrics.width / 2 + singleMetrics.width, topLine);
 
+    g2d.textAlign = 'center';
     g2d.globalAlpha = this.alpha[2];
-    g2d.fillText(LINE2, LEFT_X, middleLine);
+    g2d.fillText(LINE2, this.area.overlayWidth / 2, middleLine);
 
     g2d.globalAlpha = this.alpha[3];
-    g2d.fillText(LINE3, LEFT_X, bottomLine);
+    g2d.fillText(LINE3, this.area.overlayWidth / 2, bottomLine);
   }
 
   /**
