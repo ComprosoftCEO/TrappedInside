@@ -1,6 +1,6 @@
 import { MainArea } from 'areas/MainArea';
 import { Entity, EntityState } from 'engine/entity';
-import { DoorColor } from './DoorColor';
+import { DoorColor } from 'entities/DoorColor';
 import { SphereCollisionMask } from 'engine/collision';
 import { randomFloat } from 'engine/helpers';
 import { Inventory } from 'resources/Inventory';

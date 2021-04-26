@@ -1,12 +1,12 @@
 import { MainArea } from 'areas/MainArea';
 import { BoxCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { ElectricBoxType } from './ElectricBoxType';
-import * as THREE from 'three';
+import { ElectricBoxType } from 'entities/ElectricBoxType';
 import { GamepadButton, Key } from 'engine/input';
-import { HUD } from './HUD';
+import { HUD } from 'entities/HUD';
 import { Inventory } from 'resources/Inventory';
 import { DoorState } from 'resources/DoorState';
+import * as THREE from 'three';
 
 /**
  * Box to open and close electric doors

@@ -3,7 +3,7 @@ import { SCALE_BASE } from 'areas/AbstractMazeArea';
 import { MazeObject } from 'areas/MazeObject';
 import { BoxCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { Explosion } from './Explosion';
+import { Explosion } from 'entities/effects/Explosion';
 
 const HEALTH = 10;
 

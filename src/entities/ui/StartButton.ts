@@ -1,6 +1,6 @@
 import { TitleArea } from 'areas/TitleArea';
 import { AbstractButton } from './AbstractButton';
-import { EntityState } from './entity';
+import { EntityState } from 'engine/entity';
 
 const WIDTH = 200;
 const HEIGHT = 30;

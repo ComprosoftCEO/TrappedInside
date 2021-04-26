@@ -4,8 +4,8 @@ import { BoxCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { isAngleBetween, isBasicallyInteger, pickRandomArray } from 'engine/helpers';
 import { MazeObject } from 'areas/MazeObject';
-import { DroneBullet } from 'entities/DroneBullet';
-import { Explosion } from './Explosion';
+import { DroneBullet } from './DroneBullet';
+import { Explosion } from 'entities/effects/Explosion';
 import * as THREE from 'three';
 
 const HEALTH = 30;

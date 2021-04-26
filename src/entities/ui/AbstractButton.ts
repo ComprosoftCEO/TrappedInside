@@ -1,7 +1,7 @@
-import { Entity, EntityState } from './entity';
-import { isBetween } from './helpers';
+import { Entity, EntityState } from 'engine/entity';
+import { isBetween } from 'engine/helpers';
+import { MouseButton } from 'engine/input';
 import * as THREE from 'three';
-import { MouseButton } from './input';
 
 /**
  * Abstract button class for drawing

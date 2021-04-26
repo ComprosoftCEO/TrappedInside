@@ -1,7 +1,7 @@
 import { EntityState } from 'engine/entity';
 import { DoorState } from 'resources/DoorState';
-import { AbstractDoor } from './AbstractDoor';
-import { ElectricBoxType } from './ElectricBoxType';
+import { AbstractDoor } from 'entities/maze-objects/AbstractDoor';
+import { ElectricBoxType } from 'entities/ElectricBoxType';
 
 /**
  * Door object in the maze

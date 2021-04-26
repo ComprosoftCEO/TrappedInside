@@ -1,7 +1,7 @@
 import { MainArea } from 'areas/MainArea';
 import { BoxCollisionMask, GroupCollisionMask, SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
-import { HUD } from './HUD';
+import { HUD } from 'entities/HUD';
 import * as THREE from 'three';
 
 const OFF_COLOR = 0x323232;

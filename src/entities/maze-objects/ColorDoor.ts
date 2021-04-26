@@ -1,8 +1,8 @@
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { GamepadButton, Key } from 'engine/input';
-import { DoorColor } from './DoorColor';
-import { HUD } from './HUD';
+import { DoorColor } from 'entities/DoorColor';
+import { HUD } from 'entities/HUD';
 import { Inventory } from 'resources/Inventory';
 import { AbstractDoor } from './AbstractDoor';
 import { DoorState } from 'resources/DoorState';

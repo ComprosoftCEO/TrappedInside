@@ -4,7 +4,7 @@ import { clamp, wrapNumber } from 'engine/helpers';
 import * as THREE from 'three';
 import { BoxCollisionMask } from 'engine/collision';
 import { MainArea } from 'areas/MainArea';
-import { DeathAnimation } from './DeathAnimation';
+import { DeathAnimation } from './effects/DeathAnimation';
 import { Health } from 'resources/Health';
 import { PlayerBullet } from './PlayerBullet';
 import { Inventory } from 'resources/Inventory';

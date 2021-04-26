@@ -2,9 +2,9 @@ import { MainArea } from 'areas/MainArea';
 import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { GamepadButton, Key } from 'engine/input';
-import { HUD } from './HUD';
-import * as THREE from 'three';
+import { HUD } from 'entities/HUD';
 import { DoorState } from 'resources/DoorState';
+import * as THREE from 'three';
 
 /**
  * Lever that updates the toggle doors

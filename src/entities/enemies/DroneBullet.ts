@@ -2,7 +2,7 @@ import { SphereCollisionMask } from 'engine/collision';
 import { Entity, EntityState } from 'engine/entity';
 import { Drone } from './Drone';
 import { Health } from 'resources/Health';
-import { HitAnimation } from './HitAnimation';
+import { HitAnimation } from 'entities/effects/HitAnimation';
 import * as THREE from 'three';
 
 const MOVEMENT_SPEED = 0.5;

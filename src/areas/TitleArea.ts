@@ -1,15 +1,15 @@
 import { Area, AreaState } from 'engine/area';
 import { EntityState } from 'engine/entity';
 import { MazeObject, stringToMaze } from './MazeObject';
-import { MazeWalls } from 'entities/MazeWalls';
+import { MazeWalls } from 'entities/maze-objects/MazeWalls';
 import { AbstractMazeArea } from './AbstractMazeArea';
-import { Sunlight } from 'entities/Sunlight';
-import { MazeFloor } from 'entities/MazeFloor';
-import { DummyBigDoor } from 'entities/DummyBigDoor';
+import { Sunlight } from 'entities/effects/Sunlight';
+import { MazeFloor } from 'entities/maze-objects/MazeFloor';
+import { DummyBigDoor } from 'entities/maze-objects/DummyBigDoor';
 import { AudioWrapper } from 'engine/audio';
 import { Key, MouseButton } from 'engine/input';
 import { MainArea } from './MainArea';
-import { StartButton } from 'engine/StartButton';
+import { StartButton } from 'entities/ui/StartButton';
 import Title from 'assets/levels/Title.lvl';
 import * as THREE from 'three';
 

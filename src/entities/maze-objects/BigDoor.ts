@@ -3,7 +3,7 @@ import { EntityState } from 'engine/entity';
 import { DoorState } from 'resources/DoorState';
 import { Inventory } from 'resources/Inventory';
 import { AbstractDoor } from './AbstractDoor';
-import { HUD } from './HUD';
+import { HUD } from 'entities/HUD';
 
 /**
  * Door object in the maze
