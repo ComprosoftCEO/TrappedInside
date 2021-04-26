@@ -223,13 +223,13 @@ export class HUD implements EntityState {
       this.drawMapSubset(g2d);
     }
 
-    if (inventory.hasCollectedGun()) {
-      this.drawTarget(g2d);
-    }
-
     if (inventory.hasCollectedMap() && inventory.hasCollectedGun()) {
       this.drawInventory(g2d);
       this.drawMessage(g2d);
+    }
+
+    if (inventory.hasCollectedGun()) {
+      this.drawTarget(g2d);
     }
   }
 
