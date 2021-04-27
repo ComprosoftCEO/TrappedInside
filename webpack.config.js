@@ -14,6 +14,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'Trapped Inside',
       template: 'src/index.html',
+      favicon: 'assets/images/BlueKey.png',
     }),
   ],
   module: {
