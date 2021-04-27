@@ -15,7 +15,7 @@ const FINAL_LINE = "I don't recall ever waking up from that dream...";
 // Animation frames
 const FADE_IN_SPEEDS: number[] = [5, 5, 5, 5, 5, 5, 5];
 const FADE_IN_ALPHA: number[] = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05];
-const FADE_IN_DELAYS: number[] = [150, 200, 400, 250, 300, 180, 10];
+const FADE_IN_DELAYS: number[] = [150, 200, 400, 250, 100, 180, 10];
 
 /**
  * Draws the game introduction

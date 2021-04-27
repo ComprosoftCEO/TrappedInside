@@ -27,14 +27,13 @@ import { MazeMap } from 'entities/maze-objects/MazeMap';
 import { MazeGun } from 'entities/maze-objects/MazeGun';
 import { AbstractMazeArea } from './AbstractMazeArea';
 import { Sunlight } from 'entities/effects/Sunlight';
-import { FadeInEffect } from 'entities/effects/FadeInEffect';
-import Template from 'assets/levels/Template.lvl';
-import * as THREE from 'three';
 import { EntityState } from 'engine/entity';
 import { FadeInMainArea } from 'entities/effects/FadeInMainArea';
 import { MouseButton } from 'engine/input';
+import Template from 'assets/levels/Template.lvl';
+import * as THREE from 'three';
 
-/// Functions to construct all of the objects in the mmaze
+/// Functions to construct all of the objects in the maze
 type MazeObjectFunction = (row: number, col: number, area: Area<MainArea>) => EntityState;
 const CONSTRUCTORS: { [K in MazeObject]?: MazeObjectFunction } = {
   [MazeObject.Rock]: (row, col) => new Rock(row, col),

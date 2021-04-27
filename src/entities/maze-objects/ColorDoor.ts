@@ -34,7 +34,7 @@ export class ColorDoor extends AbstractDoor implements EntityState {
     // Update the material to match the key color
     this.configureMaterialColor(this.entity.object.children[0].children[1] as THREE.Mesh);
 
-    // Configure collision masks
+    // Configure interaction masks
     this.interactMask = new SphereCollisionMask(this.entity.object);
   }
 

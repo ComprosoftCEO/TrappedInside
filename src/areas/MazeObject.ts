@@ -1,7 +1,6 @@
 /// All objects that can be inside the maze
 export enum MazeObject {
   Empty,
-  Player,
   Wall,
   Rock,
   Energy,
@@ -62,7 +61,6 @@ export const DOOR_ITEMS: { [K in MazeObject]?: DoorItems } = {
 
 const MAZE_OBJECT_LOOKUP: Record<string, MazeObject> = {
   [' ']: MazeObject.Empty,
-  ['S']: MazeObject.Player,
   ['#']: MazeObject.Wall,
   ['@']: MazeObject.Rock,
   ['*']: MazeObject.Energy,

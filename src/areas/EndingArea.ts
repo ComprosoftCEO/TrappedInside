@@ -4,8 +4,8 @@ import { MouseButton } from 'engine/input';
 import { TitleArea } from './TitleArea';
 
 const LINE1 = 'Good news: the operation was successful!';
-const LINE2 = 'He just awoke from the comma.';
-const LINE3 = 'We expect him to make a full recovery.';
+const LINE2 = 'You just woke up from the coma.';
+const LINE3 = 'We expect you to make a full recovery.';
 
 /**
  * Ending message for the game
