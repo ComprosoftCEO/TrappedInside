@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import prettySize from 'prettysize';
 
 /**
  * All files needed to load a cube texture
@@ -385,11 +386,17 @@ export class AssetsManager {
     name: string | null,
     file: string,
   ): (event: ProgressEvent<EventTarget>) => void {
-    const nameString = name !== null ? `'${name}' ` : '';
     return (event) => {
-      console.log(
-        `Loading ${filetype} ${nameString}from '${file}': ${((event.loaded * 100) / event.total).toFixed(0)}%`,
-      );
+      const nameString = name !== null ? `'${name}' ` : '';
+      const prefix = `Loading ${filetype} ${nameString}from '${file}': ${prettySize(event.loaded)}`;
+
+      // Only show a percent if the length is computable
+      if (event.lengthComputable) {
+        const percentLoaded = (event.loaded * 100) / event.total;
+        console.log(`${prefix} / ${prettySize(event.total)} (${percentLoaded.toFixed(0)}%)`);
+      } else {
+        console.log(`${prefix} Loaded`);
+      }
     };
   }
 

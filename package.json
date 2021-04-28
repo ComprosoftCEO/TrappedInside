@@ -40,6 +40,7 @@
     "@types/color": "^3.0.1",
     "@types/lodash": "^4.14.168",
     "@types/three": "^0.127.0",
+    "prettysize": "^2.0.0",
     "three": "^0.127.0"
   }
 }
