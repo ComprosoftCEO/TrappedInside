@@ -153,18 +153,29 @@ export class MainPathGenerator {
    * Doors can only go in specific locations.
    */
   private pickRandomParentDoorLocation(item: TreeNode): TreeNode | null {
-    const parentsToTravel = randomInt(MIN_RANDOM_PARENT, MAX_RANDOM_PARENT);
-
+    // Find all available locations
+    const allAvailable = new VertexSet();
     let location: TreeNode | null = item;
-    for (let i = 0; i < parentsToTravel; i += 1) {
+    for (let i = 0; i < MAX_RANDOM_PARENT && location !== null; i += 1) {
       location = location.parent;
+      if (i < MIN_RANDOM_PARENT) {
+        continue; /* Need to travel a minimum number of parent nodes */
+      }
+
+      // Skip any non-empty objects
+      if (location.object !== MazeObject.Empty) {
+        continue;
+      }
+
+      // Skip any invalid door locations
+      if (location.row % 2 !== 0 && location.column % 2 !== 0) {
+        continue;
+      }
+
+      allAvailable.add(location); /* Node is okay */
     }
 
-    if (location.row % 2 !== 0 && location.column % 2 !== 0) {
-      return location.parent;
-    } else {
-      return location;
-    }
+    return allAvailable.pickAnyRandom();
   }
 
   /**

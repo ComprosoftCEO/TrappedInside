@@ -36,6 +36,13 @@ export class InverseToggleGenerator {
       this.allowdSpots.removeRecursive(toggleDoor);
     }
 
+    /// Remove any items
+    for (const spot of this.allowdSpots.getAllNodes()) {
+      if (spot.object !== MazeObject.Empty) {
+        this.allowdSpots.remove(spot);
+      }
+    }
+
     // Remove all non-doors
     for (const spot of this.allowdSpots.getAllNodes()) {
       if (spot.row % 2 !== 0 && spot.column % 2 !== 0) {
