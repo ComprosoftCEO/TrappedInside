@@ -75,6 +75,16 @@ overlayCanvas.setAttribute('tabindex', '0');
 overlayCanvas.classList.add('overlay');
 document.body.appendChild(overlayCanvas);
 
+// Draw the "loading" text
+overlayCanvas.width = overlayCanvas.clientWidth;
+overlayCanvas.height = overlayCanvas.clientHeight;
+const g2d = overlayCanvas.getContext('2d');
+g2d.font = '12pt sans-serif';
+g2d.fillStyle = 'white';
+g2d.textAlign = 'center';
+g2d.textBaseline = 'middle';
+g2d.fillText('Loading game...', overlayCanvas.width / 2, overlayCanvas.height / 2);
+
 const game = new Game(gameCanvas, overlayCanvas);
 loadAllAssets(game)
   .then((game) => {
