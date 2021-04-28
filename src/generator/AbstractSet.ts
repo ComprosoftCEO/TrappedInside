@@ -15,6 +15,15 @@ export abstract class AbstractSet {
   public abstract add(node: TreeNode): void;
 
   /**
+   * Add an iterable set of nodes from the set
+   */
+  public addAll(nodes: Iterable<TreeNode>): void {
+    for (const node of nodes) {
+      this.add(node);
+    }
+  }
+
+  /**
    * Add the node and all of its children to the set
    */
   public addRecursive(node: TreeNode): void {

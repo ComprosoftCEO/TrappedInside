@@ -1,4 +1,4 @@
-import { randomInt } from 'engine/helpers';
+import { pickRandomArray } from 'engine/helpers';
 import { AbstractSet } from './AbstractSet';
 import { TreeNode } from './TreeNode';
 
@@ -74,34 +74,12 @@ export class HistogramSet extends AbstractSet {
    * @param minAbsoluteDepth Minimum absolute depth (inclusive) for the node to ensure it has enough parents
    */
   public pickRandom(minDepth: number, maxDepth: number, minAbsoluteDepth = 0): TreeNode | null {
-    const allNodes = [];
-    for (let depth = minDepth; depth <= maxDepth; depth += 1) {
-      if (!this.vertices.has(depth)) {
-        continue;
-      }
-
-      const set = this.vertices.get(depth);
-      allNodes.push(...set);
-    }
-
+    const allNodes = this.getAllNodesBy(minDepth, maxDepth, minAbsoluteDepth);
     if (allNodes.length === 0) {
       return null;
     }
 
-    // Probe all nodes linearly starting at a random location for an appropirate minimum absolute depth
-    //  This is to ensure there isn't an infinite loop if no node is found
-    let nodeIndex = randomInt(0, allNodes.length - 1);
-    const startIndex = nodeIndex;
-    do {
-      const node = allNodes[nodeIndex];
-      if (node.absoluteDepth >= minAbsoluteDepth) {
-        return node;
-      }
-
-      nodeIndex = (nodeIndex + 1) % allNodes.length;
-    } while (nodeIndex !== startIndex);
-
-    return null; // No node found
+    return pickRandomArray(allNodes);
   }
 
   /**
@@ -125,5 +103,27 @@ export class HistogramSet extends AbstractSet {
     }
 
     return allNodes;
+  }
+
+  /**
+   * Get all nodes where minDepth <= depth <= maxDepth.
+   * Optionally specify a minimum absolute depth.
+   *
+   * @param minDepth Minimum depth, inclusive
+   * @param maxDepth Maximum depth, inclusive
+   * @param minAbsoluteDepth Minimum absolute depth (inclusive) for the node to ensure it has enough parents
+   */
+  public getAllNodesBy(minDepth: number, maxDepth: number, minAbsoluteDepth = 0): TreeNode[] {
+    const allNodes = [];
+    for (let depth = minDepth; depth <= maxDepth; depth += 1) {
+      if (!this.vertices.has(depth)) {
+        continue;
+      }
+
+      const set = this.vertices.get(depth);
+      allNodes.push(...set);
+    }
+
+    return allNodes.filter((node) => node.absoluteDepth >= minAbsoluteDepth);
   }
 }

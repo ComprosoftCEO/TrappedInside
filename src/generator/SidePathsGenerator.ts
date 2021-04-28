@@ -141,24 +141,23 @@ export class SidePathsGenerator {
    * Doors can only go in specific locations
    */
   private pickRandomDoorLocation(parent?: TreeNode): TreeNode | null {
-    // Only try a fixed number of times before giving up
-    for (let i = 0; i < 10; i += 1) {
-      const location = this.sideNodeDoors.pickRandom(this.minDepth, this.minDepth + WINDOW_SIZE, 2);
-      if (location === null) {
-        return null;
-      }
+    const allAllowed = new VertexSet();
+    allAllowed.addAll(this.sideNodeDoors.getAllNodesBy(this.minDepth, this.minDepth + WINDOW_SIZE, 2));
 
-      // Special case:
-      //   For colored doors, the colored door in the main path must be the parent
-      //   Otherwise, the colored key could open the side door and make the maze impossible
-      if (typeof parent !== 'undefined' && !SidePathsGenerator.isParentOf(parent, location)) {
-        continue;
+    // If specified, nodes must be a parent of the parent node.
+    //
+    // This fixes a special case:
+    //   For colored doors, the colored door in the main path must be the parent
+    //   Otherwise, the colored key could open the side door and make the maze impossible
+    if (typeof parent !== 'undefined') {
+      for (const node of allAllowed.getAllNodes()) {
+        if (!SidePathsGenerator.isParentOf(parent, node)) {
+          allAllowed.remove(node);
+        }
       }
-
-      return location;
     }
 
-    return null;
+    return allAllowed.pickAnyRandom();
   }
 
   /**
