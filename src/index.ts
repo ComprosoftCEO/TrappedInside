@@ -65,6 +65,7 @@ import TitleMusic from 'assets/music/title.wav';
 import IntroMusic from 'assets/music/intro.wav';
 import ForestAmbience from 'assets/music/forest-ambience.wav';
 import HeartMonitor from 'assets/music/heart-monitor.wav';
+import { DEFAULT_ERROR_HANDLER, DEFAULT_PROGRESS_HANDLER } from 'engine/assets';
 
 // Build the canvas objects
 const gameCanvas = document.createElement('canvas');
@@ -75,7 +76,9 @@ overlayCanvas.setAttribute('tabindex', '0');
 overlayCanvas.classList.add('overlay');
 document.body.appendChild(overlayCanvas);
 
-// Draw the "loading" text
+const game = new Game(gameCanvas, overlayCanvas);
+
+// Configure the "loading" text
 overlayCanvas.width = overlayCanvas.clientWidth;
 overlayCanvas.height = overlayCanvas.clientHeight;
 const g2d = overlayCanvas.getContext('2d');
@@ -85,7 +88,22 @@ g2d.textAlign = 'center';
 g2d.textBaseline = 'middle';
 g2d.fillText('Loading game...', overlayCanvas.width / 2, overlayCanvas.height / 2);
 
-const game = new Game(gameCanvas, overlayCanvas);
+// Show loading progress
+let errorOccured = false;
+game.assets.progressHandler = (input) => {
+  if (!errorOccured) {
+    drawLoadingProgress(g2d, input);
+  }
+  DEFAULT_PROGRESS_HANDLER(input);
+};
+
+// Show an error message
+game.assets.errorHandler = (input) => {
+  errorOccured = true;
+  drawLoadingProgress(g2d, input, 'red');
+  DEFAULT_ERROR_HANDLER(input);
+};
+
 loadAllAssets(game)
   .then((game) => {
     game.start(new TitleArea());
@@ -244,4 +262,10 @@ function adjustEmission(mesh: THREE.Mesh, color: string | number | THREE.Color, 
   const material = mesh.material as THREE.MeshStandardMaterial;
   material.emissive.set(color);
   material.emissiveIntensity = intensity;
+}
+
+function drawLoadingProgress(g2d: CanvasRenderingContext2D, text: string, color = 'white'): void {
+  g2d.clearRect(0, (5 * overlayCanvas.height) / 8, overlayCanvas.width, (7 * overlayCanvas.height) / 8);
+  g2d.fillStyle = color;
+  g2d.fillText(text, overlayCanvas.width / 2, (3 * overlayCanvas.height) / 4);
 }

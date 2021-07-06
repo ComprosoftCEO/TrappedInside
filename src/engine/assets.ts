@@ -14,6 +14,11 @@ export interface CubeTextureFiles {
   negativeZ: string;
 }
 
+export const DEFAULT_PROGRESS_HANDLER: (input: string) => void = console.log;
+export const DEFAULT_ERROR_HANDLER = (e: string): void => {
+  throw new Error(e);
+};
+
 /**
  * Manage all assets in the game
  */
@@ -33,6 +38,9 @@ export class AssetsManager {
   private objects: Record<string, THREE.Object3D> = {};
   private materials: Record<string, THREE.Material> = {};
   private animations: Record<string, THREE.AnimationClip> = {};
+
+  public progressHandler = DEFAULT_PROGRESS_HANDLER;
+  public errorHandler = DEFAULT_ERROR_HANDLER;
 
   /**
    * Constructed internally by the game entine
@@ -61,11 +69,11 @@ export class AssetsManager {
    */
   public loadTexture(name: string, file: string): Promise<void> {
     return this.textureLoader
-      .loadAsync(file, AssetsManager.onProgress('texture', name, file))
+      .loadAsync(file, this.onProgress('texture', name, file))
       .then((texture) => {
         this.textures[name] = texture;
       })
-      .catch(AssetsManager.onError('texture', name, file));
+      .catch(this.onError('texture', name, file));
   }
 
   /**
@@ -89,8 +97,8 @@ export class AssetsManager {
           resolve();
         },
 
-        AssetsManager.onProgress('cube texture', name, files.toString()),
-        AssetsManager.onError('cube texture', name, files.toString()),
+        this.onProgress('cube texture', name, files.toString()),
+        this.onError('cube texture', name, files.toString()),
       );
     });
   }
@@ -138,11 +146,11 @@ export class AssetsManager {
    */
   public loadAudioFile(name: string, file: string): Promise<void> {
     return this.audioLoader
-      .loadAsync(file, AssetsManager.onProgress('audio', name, file))
+      .loadAsync(file, this.onProgress('audio', name, file))
       .then((buffer: AudioBuffer) => {
         this.sounds[name] = buffer;
       })
-      .catch(AssetsManager.onError('audio', name, file));
+      .catch(this.onError('audio', name, file));
   }
 
   /**
@@ -184,11 +192,11 @@ export class AssetsManager {
    */
   public loadImage(name: string, file: string): Promise<void> {
     return this.imageLoader
-      .loadAsync(file, AssetsManager.onProgress('image', name, file))
+      .loadAsync(file, this.onProgress('image', name, file))
       .then((image: HTMLImageElement) => {
         this.images[name] = image;
       })
-      .catch(AssetsManager.onError('audio', name, file));
+      .catch(this.onError('audio', name, file));
   }
 
   /**
@@ -230,11 +238,11 @@ export class AssetsManager {
    */
   public loadObject(name: string, file: string): Promise<void> {
     return this.objectLoader
-      .loadAsync(file, AssetsManager.onProgress('object', name, file))
+      .loadAsync(file, this.onProgress('object', name, file))
       .then((object) => {
         this.objects[name] = object;
       })
-      .catch(AssetsManager.onError('object', name, file));
+      .catch(this.onError('object', name, file));
   }
 
   /**
@@ -276,11 +284,11 @@ export class AssetsManager {
    */
   public loadMaterial(name: string, file: string): Promise<void> {
     return this.materialLoader
-      .loadAsync(file, AssetsManager.onProgress('animation', name, file))
+      .loadAsync(file, this.onProgress('animation', name, file))
       .then((material) => {
         this.materials[name] = material;
       })
-      .catch(AssetsManager.onError('animation', name, file));
+      .catch(this.onError('animation', name, file));
   }
 
   /**
@@ -326,9 +334,9 @@ export class AssetsManager {
     onLoad: (animation: THREE.AnimationClip[], manager: this) => void,
   ): Promise<void> {
     return this.animationLoader
-      .loadAsync(file, AssetsManager.onProgress('animation', null, file))
+      .loadAsync(file, this.onProgress('animation', null, file))
       .then((animations) => onLoad(animations, this))
-      .catch(AssetsManager.onError('animation', null, file));
+      .catch(this.onError('animation', null, file));
   }
 
   /**
@@ -373,19 +381,15 @@ export class AssetsManager {
    */
   public loadGLTFFile(file: string, onLoad: (gltf: GLTF, manager: this) => void): Promise<void> {
     return this.gltfLoader
-      .loadAsync(file, AssetsManager.onProgress('gltf', null, file))
+      .loadAsync(file, this.onProgress('gltf', null, file))
       .then((gltf) => onLoad(gltf, this))
-      .catch(AssetsManager.onError('gltf', null, file));
+      .catch(this.onError('gltf', null, file));
   }
 
   /**
    * Display a progress log message as files are downloaded
    */
-  private static onProgress(
-    filetype: string,
-    name: string | null,
-    file: string,
-  ): (event: ProgressEvent<EventTarget>) => void {
+  private onProgress(filetype: string, name: string | null, file: string): (event: ProgressEvent<EventTarget>) => void {
     return (event) => {
       const nameString = name !== null ? `'${name}' ` : '';
       const prefix = `Loading ${filetype} ${nameString}from '${file}': ${prettySize(event.loaded)}`;
@@ -393,9 +397,9 @@ export class AssetsManager {
       // Only show a percent if the length is computable
       if (event.lengthComputable) {
         const percentLoaded = (event.loaded * 100) / event.total;
-        console.log(`${prefix} / ${prettySize(event.total)} (${percentLoaded.toFixed(0)}%)`);
+        this.progressHandler(`${prefix} / ${prettySize(event.total)} (${percentLoaded.toFixed(0)}%)`);
       } else {
-        console.log(`${prefix} Loaded`);
+        this.progressHandler(`${prefix} Loaded`);
       }
     };
   }
@@ -403,10 +407,12 @@ export class AssetsManager {
   /**
    * Throw an exception if an error occurs
    */
-  private static onError(filetype: string, name: string | null, file: string): (error: ErrorEvent) => void {
+  private onError(filetype: string, name: string | null, file: string): (error: ErrorEvent) => void {
     const nameString = name !== null ? `'${name}' ` : '';
     return (error) => {
-      throw new Error(`Error loading ${filetype} ${nameString}from '${file}': ${error.message}`);
+      this.errorHandler(
+        `Error loading ${filetype} ${nameString}from '${file}'${error.message ? `: ${error.message}` : ''}`,
+      );
     };
   }
 }
